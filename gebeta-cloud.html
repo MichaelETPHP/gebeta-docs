@@ -1,0 +1,1325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gebeta Cloud Doc</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f4f4f4;
+      --gray-200: #e8e8e8;
+      --gray-300: #d0d0d0;
+      --gray-400: #a0a0a0;
+      --gray-500: #707070;
+      --gray-700: #404040;
+      --gray-900: #141414;
+      --code-bg: #0a0a0a;
+      --code-border: #1e1e1e;
+      --code-text: #e2e2e2;
+      --code-comment: #555;
+      --code-keyword: #fff;
+      --code-string: #ccc;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    /* ── TOPBAR ── */
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 200;
+    }
+
+    .topbar-brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .topbar-brand span { color: var(--gray-500); }
+
+    .topbar-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-500);
+      letter-spacing: 1px;
+    }
+
+    /* ── LAYOUT ── */
+    .layout {
+      display: flex;
+      margin-top: 52px;
+      min-height: calc(100vh - 52px);
+    }
+
+    /* ── SIDEBAR ── */
+    .sidebar {
+      width: 256px;
+      flex-shrink: 0;
+      background: var(--gray-50);
+      border-right: 1px solid var(--gray-200);
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      padding: 28px 0;
+    }
+
+    .sidebar::-webkit-scrollbar { width: 4px; }
+    .sidebar::-webkit-scrollbar-track { background: transparent; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--gray-300); border-radius: 2px; }
+
+    .sidebar-group { margin-bottom: 4px; }
+
+    .sidebar-group-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--gray-400);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 16px 20px 6px;
+      display: block;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 20px;
+      font-size: 13px;
+      color: var(--gray-500);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .sidebar a:hover {
+      color: var(--black);
+      background: var(--gray-200);
+      border-left-color: var(--gray-400);
+    }
+
+    .sidebar a.active {
+      color: var(--black);
+      background: var(--white);
+      border-left-color: var(--black);
+      font-weight: 500;
+    }
+
+    .sidebar-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-300);
+      min-width: 18px;
+    }
+
+    /* ── MAIN ── */
+    .main {
+      flex: 1;
+      max-width: 800px;
+      padding: 56px 64px 96px;
+    }
+
+    /* ── HERO ── */
+    .doc-hero {
+      border-bottom: 1px solid var(--gray-200);
+      padding-bottom: 48px;
+      margin-bottom: 56px;
+    }
+
+    .doc-hero-tag {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-400);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .doc-hero h1 {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .doc-hero p {
+      font-size: 16px;
+      color: var(--gray-500);
+      max-width: 520px;
+      line-height: 1.7;
+    }
+
+    /* ── SECTIONS ── */
+    .doc-section {
+      margin-bottom: 72px;
+      scroll-margin-top: 72px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: baseline;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .section-num {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-400);
+      letter-spacing: 1px;
+    }
+
+    .section-header h2 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 28px 0 10px;
+      color: var(--gray-900);
+    }
+
+    p {
+      color: var(--gray-700);
+      margin-bottom: 14px;
+      font-size: 14px;
+    }
+
+    /* ── STEPS ── */
+    .steps { margin: 20px 0; }
+
+    .step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+
+    .step::before {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: -20px;
+      width: 1px;
+      background: var(--gray-200);
+    }
+
+    .step:last-child::before { display: none; }
+
+    .step-num {
+      flex-shrink: 0;
+      width: 32px;
+      height: 32px;
+      background: var(--black);
+      color: var(--white);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-body { flex: 1; padding-top: 4px; }
+
+    .step-body h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 6px;
+      color: var(--black);
+    }
+
+    .step-body p { margin-bottom: 8px; }
+
+    /* ── CODE ── */
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--code-border);
+      border-radius: 4px;
+      padding: 16px 20px;
+      overflow-x: auto;
+      margin: 12px 0 20px;
+      position: relative;
+    }
+
+    pre code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12.5px;
+      color: var(--code-text);
+      line-height: 1.8;
+    }
+
+    code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      padding: 1px 6px;
+      border-radius: 3px;
+      color: var(--black);
+    }
+
+    pre code { background: none; border: none; padding: 0; }
+
+    .code-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-500);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* ── CALLOUTS ── */
+    .callout {
+      border-left: 3px solid var(--black);
+      background: var(--gray-50);
+      padding: 14px 18px;
+      margin: 16px 0;
+      border-radius: 0 4px 4px 0;
+    }
+
+    .callout.warn {
+      border-left-color: var(--black);
+      background: #fffbf0;
+    }
+
+    .callout.error {
+      border-left-color: var(--black);
+      background: #fff5f5;
+    }
+
+    .callout.success {
+      border-left-color: var(--black);
+      background: #f5fff8;
+    }
+
+    .callout-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--black);
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .callout p { margin: 0; font-size: 13px; color: var(--gray-700); }
+
+    /* ── TABLES ── */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px;
+      font-size: 13px;
+    }
+
+    th {
+      background: var(--black);
+      color: var(--white);
+      padding: 10px 14px;
+      text-align: left;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    td {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--gray-200);
+      color: var(--gray-700);
+      vertical-align: top;
+    }
+
+    tr:hover td { background: var(--gray-50); }
+    td code { font-size: 11px; }
+
+    /* ── WORKFLOW ── */
+    .workflow {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      margin: 20px 0;
+      flex-wrap: wrap;
+      gap: 4px;
+    }
+
+    .wf-box {
+      background: var(--black);
+      color: var(--white);
+      padding: 10px 16px;
+      border-radius: 3px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .wf-box.outline {
+      background: var(--white);
+      color: var(--black);
+      border: 1px solid var(--gray-300);
+    }
+
+    .wf-arrow {
+      color: var(--gray-400);
+      font-size: 16px;
+      padding: 0 4px;
+    }
+
+    /* ── BADGE ── */
+    .badge {
+      display: inline-block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 2px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-right: 4px;
+    }
+
+    .badge-black { background: var(--black); color: var(--white); }
+    .badge-outline { background: transparent; border: 1px solid var(--black); color: var(--black); }
+    .badge-warn { background: #fff3cd; color: #856404; border: 1px solid #ffc107; }
+    .badge-error { background: #fde8e8; color: #c0392b; border: 1px solid #e74c3c; }
+    .badge-ok { background: #e8f5e9; color: #2e7d32; border: 1px solid #4caf50; }
+
+    /* ── DIVIDER ── */
+    .divider {
+      border: none;
+      border-top: 1px solid var(--gray-200);
+      margin: 32px 0;
+    }
+
+    /* ── CHEATSHEET ── */
+    .cheat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 16px 0;
+    }
+
+    .cheat-item {
+      border: 1px solid var(--gray-200);
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .cheat-cmd {
+      background: var(--code-bg);
+      padding: 8px 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--code-text);
+    }
+
+    .cheat-desc {
+      padding: 6px 12px;
+      font-size: 12px;
+      color: var(--gray-700);
+      background: var(--gray-50);
+    }
+
+    /* ── FOOTER ── */
+    .doc-footer {
+      border-top: 1px solid var(--gray-200);
+      padding: 28px 64px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-400);
+    }
+
+    .doc-footer a { color: var(--gray-500); text-decoration: none; }
+    .doc-footer a:hover { color: var(--black); }
+
+    /* ── SCROLL TOP ── */
+    .scroll-top {
+      position: fixed;
+      bottom: 28px;
+      right: 28px;
+      width: 36px;
+      height: 36px;
+      background: var(--black);
+      color: var(--white);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      transition: background 0.15s;
+    }
+
+    .scroll-top:hover { background: var(--gray-700); }
+
+    @media (max-width: 768px) {
+      .sidebar { display: none; }
+      .main { padding: 32px 24px 64px; }
+      .cheat-grid { grid-template-columns: 1fr; }
+      .doc-footer { flex-direction: column; gap: 8px; padding: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <a href="#" class="topbar-brand">GEBETA <span>CLOUD</span> DOC</a>
+  <span class="topbar-meta">v1.0 · 2026</span>
+</nav>
+
+<div class="layout">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Overview</span>
+      <a href="#intro"><span class="sidebar-num">00</span> Introduction</a>
+      <a href="#workflow-overview"><span class="sidebar-num">01</span> How It Works</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Setup</span>
+      <a href="#git-setup"><span class="sidebar-num">02</span> Git & SSH Setup</a>
+      <a href="#github-setup"><span class="sidebar-num">03</span> GitHub Setup</a>
+      <a href="#subdomain"><span class="sidebar-num">04</span> Create Subdomain</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Deployment</span>
+      <a href="#clone-repo"><span class="sidebar-num">05</span> Clone Repo to cPanel</a>
+      <a href="#nodejs-setup"><span class="sidebar-num">06</span> Node.js App Setup</a>
+      <a href="#static-setup"><span class="sidebar-num">07</span> Static Site Setup</a>
+      <a href="#permissions"><span class="sidebar-num">08</span> Fix Permissions</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Daily Work</span>
+      <a href="#daily-workflow"><span class="sidebar-num">09</span> Push & Deploy</a>
+      <a href="#private-repo"><span class="sidebar-num">10</span> Private Repo Token</a>
+      <a href="#team-workflow"><span class="sidebar-num">11</span> Team Workflow</a>
+    </div>
+    <div class="sidebar-group">
+      <span class="sidebar-group-label">Reference</span>
+      <a href="#common-errors"><span class="sidebar-num">12</span> Common Errors</a>
+      <a href="#cheatsheet"><span class="sidebar-num">13</span> Git Cheat Sheet</a>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- HERO -->
+    <div class="doc-hero" id="intro">
+      <div class="doc-hero-tag">Gebeta Cloud · Developer Guide</div>
+      <h1>Gebeta Cloud<br>Documentation</h1>
+      <p>A complete step-by-step guide for deploying projects to cPanel using GitHub — from creating a subdomain to going live. Written based on real deployment experience to avoid common mistakes.</p>
+    </div>
+
+    <!-- 01 HOW IT WORKS -->
+    <section class="doc-section" id="workflow-overview">
+      <div class="section-header">
+        <span class="section-num">01</span>
+        <h2>How It Works</h2>
+      </div>
+
+      <p>Every project follows the same three-layer flow. Your code lives on GitHub, gets deployed to cPanel, and is served on a subdomain.</p>
+
+      <div class="workflow">
+        <div class="wf-box">Your Laptop<br><small style="font-weight:300;opacity:0.7">write code</small></div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-box outline">GitHub<br><small style="opacity:0.6">git push</small></div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-box outline">cPanel<br><small style="opacity:0.6">git pull</small></div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-box">subdomain.gebetacloud.com<br><small style="font-weight:300;opacity:0.7">live site</small></div>
+      </div>
+
+      <table>
+        <tr><th>Tool</th><th>What it does</th></tr>
+        <tr><td><code>Git</code></td><td>Tracks all changes to your code locally</td></tr>
+        <tr><td><code>GitHub</code></td><td>Cloud storage — holds your code repository online</td></tr>
+        <tr><td><code>cPanel</code></td><td>Web hosting control panel — runs your app on the server</td></tr>
+        <tr><td><code>Subdomain</code></td><td>A URL like <code>myapp.gebetacloud.com</code> that points to your project folder</td></tr>
+        <tr><td><code>Node.js Selector</code></td><td>cPanel tool that runs Node.js apps using Passenger</td></tr>
+      </table>
+    </section>
+
+    <!-- 02 GIT SETUP -->
+    <section class="doc-section" id="git-setup">
+      <div class="section-header">
+        <span class="section-num">02</span>
+        <h2>Git & SSH Setup</h2>
+      </div>
+
+      <p>Do this once on your laptop. Git tracks your code changes. SSH lets you connect to GitHub without typing a password every time.</p>
+
+      <h3>Install Git</h3>
+      <p>Download from <strong>git-scm.com</strong> and install with default settings.</p>
+      <span class="code-label">verify installation</span>
+      <pre><code>git --version
+# Should output: git version 2.x.x</code></pre>
+
+      <h3>Set Your Identity</h3>
+      <p>Git uses this info on every commit you make.</p>
+      <pre><code>git config --global user.name "Your Name"
+git config --global user.email "your@email.com"</code></pre>
+
+      <h3>Generate SSH Key</h3>
+      <pre><code>ssh-keygen -t ed25519 -C "your@email.com"
+# Press Enter 3 times — accept all defaults, no passphrase needed</code></pre>
+
+      <h3>Copy Your Public Key</h3>
+      <div class="callout warn">
+        <span class="callout-label">⚠ Windows Only</span>
+        <p>The <code>cat</code> command does not work on Windows. Use one of these instead:</p>
+      </div>
+      <pre><code># Windows Command Prompt
+type %USERPROFILE%\.ssh\id_ed25519.pub
+
+# Windows PowerShell
+Get-Content ~/.ssh/id_ed25519.pub
+
+# Open in Notepad
+notepad %USERPROFILE%\.ssh\id_ed25519.pub</code></pre>
+
+      <div class="callout">
+        <span class="callout-label">Your key looks like this</span>
+        <p>ssh-ed25519 AAAAC3Nza... your@email.com — copy the entire line including the beginning and your email at the end.</p>
+      </div>
+
+      <h3>Remove Stored Password</h3>
+      <p>If you accidentally stored your GitHub password in git config, remove it:</p>
+      <pre><code>git config --global --unset user.password</code></pre>
+    </section>
+
+    <!-- 03 GITHUB SETUP -->
+    <section class="doc-section" id="github-setup">
+      <div class="section-header">
+        <span class="section-num">03</span>
+        <h2>GitHub Setup</h2>
+      </div>
+
+      <p>Add your SSH key to GitHub so cPanel and your laptop can connect without passwords.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Open SSH Settings</h4>
+            <p>Login to <strong>github.com</strong> → click your profile picture → <strong>Settings</strong> → left sidebar → <strong>SSH and GPG keys</strong></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Add New SSH Key</h4>
+            <p>Click <strong>New SSH key</strong> → Title: <code>My Laptop</code> → Key type: <code>Authentication Key</code> → Paste your public key → Save</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Test the Connection</h4>
+            <pre><code>ssh -T git@github.com
+# Expected: Hi YourUsername! You've successfully authenticated.</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-body">
+            <h4>Push Your Project</h4>
+            <pre><code>cd your-project-folder
+echo "node_modules/" >> .gitignore
+echo ".env" >> .gitignore
+echo "*.log" >> .gitignore
+git init
+git add .
+git commit -m "initial commit"
+git branch -M main
+git remote add origin git@github.com:yourusername/your-repo.git
+git push -u origin main</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 04 SUBDOMAIN -->
+    <section class="doc-section" id="subdomain">
+      <div class="section-header">
+        <span class="section-num">04</span>
+        <h2>Create Subdomain</h2>
+      </div>
+
+      <p>A subdomain like <code>myapp.gebetacloud.com</code> is what users visit. It points to a folder on the server where your project lives.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Open Domains in cPanel</h4>
+            <p>Login to cPanel → search <strong>"Domains"</strong> → click <strong>Create A New Domain</strong></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Enter the Subdomain</h4>
+            <p>Type your subdomain e.g. <code>myapp.gebetacloud.com</code> — cPanel automatically sets the document root folder to <code>/myapp</code></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Verify the Mapping</h4>
+            <p>In the Domains list confirm:</p>
+            <table>
+              <tr><th>Subdomain</th><th>Document Root</th></tr>
+              <tr><td><code>myapp.gebetacloud.com</code></td><td><code>/myapp</code> (which is <code>/home/gebetaya/myapp</code>)</td></tr>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout">
+        <span class="callout-label">Key Rule</span>
+        <p>The subdomain folder name = Node.js app root = GitHub repo folder. All three must point to the same folder.</p>
+      </div>
+    </section>
+
+    <!-- 05 CLONE REPO -->
+    <section class="doc-section" id="clone-repo">
+      <div class="section-header">
+        <span class="section-num">05</span>
+        <h2>Clone Repo to cPanel</h2>
+      </div>
+
+      <p>There are two ways to clone your GitHub repo to cPanel. Choose based on whether your repo is public or private.</p>
+
+      <h3>Public Repo — cPanel Git Version Control GUI</h3>
+      <p>For public repos this is the easiest method. cPanel pulls directly using HTTPS — no SSH key needed.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Open Git Version Control</h4>
+            <p>cPanel → search <strong>"Git Version Control"</strong> → click <strong>Create</strong></p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Fill In Details</h4>
+            <table>
+              <tr><th>Field</th><th>Value</th></tr>
+              <tr><td>Clone URL</td><td><code>https://github.com/username/repo.git</code></td></tr>
+              <tr><td>Repository Path</td><td><code>/home/gebetaya/myapp</code></td></tr>
+              <tr><td>Repository Name</td><td><code>my-repo-name</code></td></tr>
+            </table>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Click Create</h4>
+            <p>cPanel clones the repo. To pull updates later: <strong>Manage → Update from Remote</strong></p>
+          </div>
+        </div>
+      </div>
+
+      <hr class="divider">
+
+      <h3>Private Repo — Use Personal Access Token</h3>
+      <p>For private repos, generate a token on GitHub and embed it in the clone URL.</p>
+
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Generate Token on GitHub</h4>
+            <p>Login to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token → check <code>repo</code> scope → copy token</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Use Token in Clone URL</h4>
+            <pre><code>https://YOUR_TOKEN@github.com/username/private-repo.git</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Create in cPanel Git Version Control</h4>
+            <p>Use the token URL as the Clone URL. <strong>Update from Remote</strong> will work via GUI! ✅</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout warn">
+        <span class="callout-label">⚠ Security</span>
+        <p>Never share your token publicly. After setup, you can regenerate a new token on GitHub for security.</p>
+      </div>
+
+      <hr class="divider">
+
+      <h3>Manual Clone via Terminal (Fallback)</h3>
+      <pre><code># Open cPanel Terminal and run:
+GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519' git clone \
+  git@github.com:username/repo.git /home/gebetaya/myapp</code></pre>
+    </section>
+
+    <!-- 06 NODEJS SETUP -->
+    <section class="doc-section" id="nodejs-setup">
+      <div class="section-header">
+        <span class="section-num">06</span>
+        <h2>Node.js App Setup</h2>
+      </div>
+
+      <p>For projects with a <code>server.js</code> or <code>app.js</code> backend. The Node.js Selector runs your app using Passenger.</p>
+
+      <h3>Create the Node.js App</h3>
+      <p>cPanel → search <strong>"Node.js"</strong> → <strong>Create Application</strong></p>
+
+      <table>
+        <tr><th>Field</th><th>Value</th><th>Why</th></tr>
+        <tr><td>Node.js version</td><td><code>24.x (recommended)</code></td><td>Always pick latest stable</td></tr>
+        <tr><td>Application mode</td><td><code>Production</code></td><td>Optimized for live servers</td></tr>
+        <tr><td>Application root</td><td><code>myapp</code></td><td>Folder name only, not full path</td></tr>
+        <tr><td>Application URL</td><td>Select from dropdown</td><td>Leave text box empty!</td></tr>
+        <tr><td>Startup file</td><td><code>server.js</code> or <code>app.js</code></td><td>Your entry point file</td></tr>
+      </table>
+
+      <div class="callout error">
+        <span class="callout-label">⛔ Critical Mistake</span>
+        <p>Never type the subdomain name in the Application URL text box — only select it from the dropdown. Typing it creates a doubled folder path like <code>myapp/myapp/</code> which breaks everything.</p>
+      </div>
+
+      <h3>Your server.js Must Use process.env.PORT</h3>
+      <p>cPanel assigns a random port — never hardcode port 3000.</p>
+      <pre><code>import express from "express";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const app = express();
+const PORT = process.env.PORT || 3000; // ← always use this
+
+app.use(express.static(path.join(__dirname, "dist")));
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname, "dist", "index.html"));
+});
+
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});</code></pre>
+
+      <div class="callout warn">
+        <span class="callout-label">⚠ ES Module Warning</span>
+        <p>If your <code>package.json</code> has <code>"type": "module"</code>, use <code>import</code> syntax not <code>require()</code>. Using <code>require()</code> will crash the app with a ReferenceError.</p>
+      </div>
+
+      <h3>Install Dependencies</h3>
+      <p>After creating the app, click <strong>Run NPM Install</strong> on the Node.js page, or run via terminal:</p>
+      <pre><code>cd /home/gebetaya/myapp
+npm install</code></pre>
+
+      <h3>Verify .htaccess was Created</h3>
+      <p>cPanel auto-generates this file. If it's missing or duplicated, restart the app.</p>
+      <pre><code>cat /home/gebetaya/myapp/.htaccess
+# Should show ONE block only:
+# PassengerAppRoot "/home/gebetaya/myapp"
+# PassengerBaseURI "/"
+# PassengerNodejs "/home/gebetaya/nodevenv/myapp/24/bin/node"
+# PassengerAppType node
+# PassengerStartupFile server.js</code></pre>
+
+      <div class="callout error">
+        <span class="callout-label">⛔ Duplicate .htaccess Bug</span>
+        <p>If you see the Passenger block twice in .htaccess, manually fix it by running: <code>cat > /home/gebetaya/myapp/.htaccess</code> and paste only one block.</p>
+      </div>
+    </section>
+
+    <!-- 07 STATIC SITE -->
+    <section class="doc-section" id="static-setup">
+      <div class="section-header">
+        <span class="section-num">07</span>
+        <h2>Static Site Setup</h2>
+      </div>
+
+      <p>For Vite/React projects without a backend server. Just HTML, CSS, and JS files served directly.</p>
+
+      <h3>Build Locally First</h3>
+      <pre><code>npm run build
+# Creates a dist/ folder with production-ready files</code></pre>
+
+      <h3>Push dist Folder to GitHub</h3>
+      <p>By default Vite adds <code>dist</code> to <code>.gitignore</code> — remove that line!</p>
+      <pre><code># In .gitignore — remove or comment out:
+# dist
+
+# Then push
+git add .
+git commit -m "build: include dist folder"
+git push origin main</code></pre>
+
+      <div class="callout error">
+        <span class="callout-label">⛔ Delete root index.html on server</span>
+        <p>If your project has an <code>index.html</code> in the root folder (development version with <code>src/main.tsx</code>), delete it from the server. It will override the correct <code>dist/index.html</code> and break the site.</p>
+      </div>
+      <pre><code>rm /home/gebetaya/myapp/index.html</code></pre>
+
+      <h3>Add .htaccess for SPA Routing</h3>
+      <pre><code>cat > /home/gebetaya/myapp/dist/.htaccess << 'EOF'
+DirectoryIndex index.html
+RewriteEngine On
+RewriteBase /
+RewriteRule ^index\.html$ - [L]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule . /index.html [L]
+EOF</code></pre>
+
+      <h3>Point Subdomain to dist Folder</h3>
+      <p>cPanel → <strong>Domains</strong> → your subdomain → <strong>Manage</strong> → Document Root:</p>
+      <pre><code>/home/gebetaya/myapp/dist</code></pre>
+
+      <div class="callout warn">
+        <span class="callout-label">⚠ Do NOT create a Node.js app for static sites</span>
+        <p>Static sites don't need Node.js Selector. If you accidentally created one, click Destroy. It will override your .htaccess and break the site.</p>
+      </div>
+    </section>
+
+    <!-- 08 PERMISSIONS -->
+    <section class="doc-section" id="permissions">
+      <div class="section-header">
+        <span class="section-num">08</span>
+        <h2>Fix Permissions</h2>
+      </div>
+
+      <div class="callout error">
+        <span class="callout-label">⛔ #1 Cause of 404 on cPanel</span>
+        <p>When cPanel creates folders, permissions default to 700 (owner only). LiteSpeed web server cannot read them. Always fix permissions after setup or after cloning.</p>
+      </div>
+
+      <h3>Understanding Permissions</h3>
+      <table>
+        <tr><th>Permission</th><th>Code</th><th>Web Server Access</th></tr>
+        <tr><td><code>drwx------</code></td><td>700</td><td><span class="badge badge-error">Blocked</span> Default — always breaks</td></tr>
+        <tr><td><code>drwxr-xr-x</code></td><td>755</td><td><span class="badge badge-ok">Works</span> Correct for folders</td></tr>
+        <tr><td><code>-rw-r--r--</code></td><td>644</td><td><span class="badge badge-ok">Works</span> Correct for files</td></tr>
+      </table>
+
+      <h3>Fix Commands — Run After Every New Deployment</h3>
+      <pre><code># Fix the main app folder
+chmod 755 /home/gebetaya/myapp
+
+# Fix all folders recursively
+find /home/gebetaya/myapp -type d -exec chmod 755 {} \;
+
+# Fix all files recursively
+find /home/gebetaya/myapp -type f -exec chmod 644 {} \;
+
+# Fix specific key files
+chmod 644 /home/gebetaya/myapp/.htaccess
+chmod 644 /home/gebetaya/myapp/server.js</code></pre>
+
+      <h3>Restart After Fixing</h3>
+      <pre><code># Via terminal
+touch /home/gebetaya/myapp/tmp/restart.txt
+
+# Or via cPanel: Node.js Selector → STOP → SAVE → RESTART</code></pre>
+    </section>
+
+    <!-- 09 DAILY WORKFLOW -->
+    <section class="doc-section" id="daily-workflow">
+      <div class="section-header">
+        <span class="section-num">09</span>
+        <h2>Push & Deploy Workflow</h2>
+      </div>
+
+      <p>After everything is set up, this is your daily routine.</p>
+
+      <h3>Step 1 — Code on your laptop</h3>
+      <pre><code># Make your changes, then:
+git status               # see what changed
+git add .                # stage all changes
+git commit -m "feat: describe what you changed"
+git push origin main     # upload to GitHub</code></pre>
+
+      <h3>Step 2 — For Node.js projects: build first</h3>
+      <pre><code>npm run build            # generates dist/ folder
+git add .
+git commit -m "build: production build"
+git push origin main</code></pre>
+
+      <h3>Step 3 — Pull on cPanel</h3>
+      <p><strong>Option A — cPanel GUI (Public repos):</strong><br>
+      Git Version Control → your repo → Manage → <strong>Update from Remote</strong></p>
+
+      <p><strong>Option B — Terminal (All repos):</strong></p>
+      <pre><code>cd /home/gebetaya/myapp
+git pull origin main</code></pre>
+
+      <p><strong>Option C — Force overwrite (when pull fails):</strong></p>
+      <pre><code>cd /home/gebetaya/myapp
+git fetch origin
+git reset --hard origin/main</code></pre>
+
+      <h3>Step 4 — Restart Node.js app</h3>
+      <pre><code>touch /home/gebetaya/myapp/tmp/restart.txt
+# Or: Node.js Selector → Restart</code></pre>
+
+      <h3>Commit Message Guide</h3>
+      <table>
+        <tr><th>Prefix</th><th>When to use</th></tr>
+        <tr><td><code>feat:</code></td><td>Adding a new feature</td></tr>
+        <tr><td><code>fix:</code></td><td>Fixing a bug</td></tr>
+        <tr><td><code>build:</code></td><td>Production build / dist update</td></tr>
+        <tr><td><code>update:</code></td><td>Updating existing content</td></tr>
+        <tr><td><code>docs:</code></td><td>Documentation changes</td></tr>
+        <tr><td><code>style:</code></td><td>CSS / UI changes only</td></tr>
+      </table>
+    </section>
+
+    <!-- 10 PRIVATE REPO TOKEN -->
+    <section class="doc-section" id="private-repo">
+      <div class="section-header">
+        <span class="section-num">10</span>
+        <h2>Private Repo Token</h2>
+      </div>
+
+      <p>For private GitHub repos, use a Personal Access Token so cPanel GUI can pull without SSH key issues.</p>
+
+      <h3>Generate Token on GitHub</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Go to GitHub Token Settings</h4>
+            <p>github.com → profile picture → Settings → Developer settings → Personal access tokens → Tokens (classic)</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Generate New Token</h4>
+            <p>Click <strong>Generate new token (classic)</strong> → Note: <code>cPanel deployment</code> → check <code>repo</code> (full) → Generate → <strong>Copy immediately</strong> — shown only once!</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Use in Clone URL</h4>
+            <pre><code>https://YOUR_TOKEN@github.com/username/private-repo.git</code></pre>
+            <p>Use this as the Clone URL in cPanel Git Version Control.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 11 TEAM WORKFLOW -->
+    <section class="doc-section" id="team-workflow">
+      <div class="section-header">
+        <span class="section-num">11</span>
+        <h2>Team Workflow</h2>
+      </div>
+
+      <p>For Gebeta Cloud team members — how to deploy your project to cPanel.</p>
+
+      <div class="workflow">
+        <div class="wf-box outline">Developer<br><small style="opacity:0.6">push code + send token</small></div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-box outline">Admin (Michael)<br><small style="opacity:0.6">create subdomain + clone</small></div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-box">Live<br><small style="font-weight:300;opacity:0.7">deployed</small></div>
+      </div>
+
+      <h3>Developer Responsibilities</h3>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-body">
+            <h4>Create GitHub Repo & Push Code</h4>
+            <pre><code>git init && git add . && git commit -m "initial"
+git remote add origin git@github.com:username/repo.git
+git push -u origin main</code></pre>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-body">
+            <h4>Generate Personal Access Token</h4>
+            <p>GitHub → Settings → Developer settings → Tokens (classic) → Generate → check <code>repo</code> → copy</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-body">
+            <h4>Send to Admin</h4>
+            <p>Share with Michael:</p>
+            <ul style="font-size:13px;color:#404040;padding-left:20px;margin-top:6px;">
+              <li>GitHub repo URL</li>
+              <li>Personal Access Token</li>
+              <li>Requested subdomain name</li>
+              <li>Project type: Node.js app or Static site</li>
+              <li>Startup file name (e.g. <code>server.js</code>)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <h3>For Future Updates</h3>
+      <pre><code># Developer pushes new code:
+git add . && git commit -m "update: new feature" && git push
+
+# Admin pulls on cPanel:
+# Git Version Control → Update from Remote → Restart</code></pre>
+
+      <div class="callout">
+        <span class="callout-label">Team Rule</span>
+        <p>Never edit files directly on cPanel File Manager. Always edit locally → push to GitHub → pull to cPanel. Direct edits cause merge conflicts and break deployments.</p>
+      </div>
+    </section>
+
+    <!-- 12 COMMON ERRORS -->
+    <section class="doc-section" id="common-errors">
+      <div class="section-header">
+        <span class="section-num">12</span>
+        <h2>Common Errors & Fixes</h2>
+      </div>
+
+      <p>Every error listed here was encountered during real deployment. Read carefully.</p>
+
+      <h3>404 Not Found</h3>
+      <table>
+        <tr><th>Cause</th><th>Fix</th></tr>
+        <tr><td>Folder permissions are 700</td><td><code>chmod 755 /home/gebetaya/myapp</code></td></tr>
+        <tr><td>Wrong Application URL in Node.js</td><td>Change to correct subdomain, leave text box empty</td></tr>
+        <tr><td>App not running</td><td>Node.js Selector → Restart</td></tr>
+        <tr><td>Missing .htaccess</td><td>Stop app → Save → Restart to regenerate</td></tr>
+        <tr><td>Wrong Document Root</td><td>cPanel → Domains → Manage → update path</td></tr>
+      </table>
+
+      <h3>503 Service Unavailable</h3>
+      <table>
+        <tr><th>Cause</th><th>Fix</th></tr>
+        <tr><td>App crashes on startup</td><td><code>cat /home/gebetaya/myapp/stderr.log</code></td></tr>
+        <tr><td>Missing node_modules</td><td>Node.js Selector → Run NPM Install</td></tr>
+        <tr><td><code>require is not defined</code></td><td>Use <code>import</code> instead of <code>require</code> (ES module)</td></tr>
+        <tr><td>Duplicate .htaccess block</td><td>Manually fix .htaccess — keep only one Passenger block</td></tr>
+        <tr><td>Doubled folder path bug</td><td>Destroy app → recreate, select URL from dropdown only</td></tr>
+      </table>
+
+      <h3>Git Pull Errors</h3>
+      <pre><code># Error: local changes would be overwritten
+git fetch origin
+git reset --hard origin/main
+
+# Error: untracked files would be overwritten
+git clean -fd
+git pull origin main
+
+# Error: could not read Username (HTTPS on private repo)
+# Use token URL instead:
+# https://TOKEN@github.com/username/repo.git
+
+# Error: Permission denied (publickey)
+# SSH key not added to GitHub account
+ssh-keygen -t ed25519 -C "your@email.com"
+# Add public key to GitHub → Settings → SSH keys</code></pre>
+
+      <h3>MIME Type Error (React/Vite apps)</h3>
+      <pre><code># Error: Expected JavaScript module but got application/octet-stream
+# Cause: root index.html (dev version) is being served instead of dist/index.html
+# Fix:
+rm /home/gebetaya/myapp/index.html
+touch /home/gebetaya/myapp/tmp/restart.txt</code></pre>
+
+      <h3>FileNotFoundError: doubled path .htaccess</h3>
+      <pre><code># Error: /home/gebetaya/myapp/myapp/.htaccess not found
+# Cause: Application URL text box was filled in (should be empty)
+# Fix: Destroy Node.js app → recreate → leave URL text box empty
+mkdir -p /home/gebetaya/myapp/myapp
+touch /home/gebetaya/myapp/myapp/.htaccess</code></pre>
+
+      <h3>Key is Already in Use</h3>
+      <p>Same SSH key cannot be added to two different GitHub accounts. Solutions:</p>
+      <ul style="font-size:13px;color:#404040;padding-left:20px;margin:8px 0 16px;">
+        <li>Add as a <strong>Deploy Key</strong> on the specific repo (Settings → Deploy keys)</li>
+        <li>Use a <strong>Personal Access Token</strong> instead of SSH</li>
+        <li>Make the repo <strong>public</strong> (no key needed for read access)</li>
+      </ul>
+    </section>
+
+    <!-- 13 CHEATSHEET -->
+    <section class="doc-section" id="cheatsheet">
+      <div class="section-header">
+        <span class="section-num">13</span>
+        <h2>Git Cheat Sheet</h2>
+      </div>
+
+      <div class="cheat-grid">
+        <div class="cheat-item">
+          <div class="cheat-cmd">git init</div>
+          <div class="cheat-desc">Start git tracking in a folder</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git status</div>
+          <div class="cheat-desc">See what files changed</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git add .</div>
+          <div class="cheat-desc">Stage all changes for commit</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git commit -m "msg"</div>
+          <div class="cheat-desc">Save a snapshot with message</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git push origin main</div>
+          <div class="cheat-desc">Upload commits to GitHub</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git pull origin main</div>
+          <div class="cheat-desc">Download latest from GitHub</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git clone &lt;url&gt;</div>
+          <div class="cheat-desc">Download a full repository</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git log --oneline</div>
+          <div class="cheat-desc">View commit history</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git reset --hard HEAD</div>
+          <div class="cheat-desc">Discard all local changes</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git remote -v</div>
+          <div class="cheat-desc">Show remote connections</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git stash</div>
+          <div class="cheat-desc">Temporarily save changes</div>
+        </div>
+        <div class="cheat-item">
+          <div class="cheat-cmd">git clean -fd</div>
+          <div class="cheat-desc">Remove untracked files</div>
+        </div>
+      </div>
+
+      <h3>cPanel Terminal Quick Commands</h3>
+      <pre><code># Navigate to project
+cd /home/gebetaya/myapp
+
+# Check files
+ls -la
+
+# Fix permissions
+chmod 755 /home/gebetaya/myapp
+find /home/gebetaya/myapp -type f -exec chmod 644 {} \;
+
+# Restart app
+touch /home/gebetaya/myapp/tmp/restart.txt
+
+# Check error log
+cat /home/gebetaya/myapp/stderr.log
+
+# Run app manually to see errors
+source /home/gebetaya/nodevenv/myapp/24/bin/activate
+node server.js
+
+# Check if node is running
+ps aux | grep node | grep -v grep
+
+# Force pull from GitHub
+git fetch origin && git reset --hard origin/main</code></pre>
+    </section>
+
+  </main>
+</div>
+
+<!-- FOOTER -->
+<footer class="doc-footer">
+  <span>GEBETA CLOUD DOC · v1.0 · 2026</span>
+  <span>Built by Gebeta Technology PLC · <a href="#">gebetacloud.com</a></span>
+</footer>
+
+<!-- SCROLL TO TOP -->
+<a href="#" class="scroll-top">↑</a>
+
+<script>
+  // Active sidebar on scroll
+  const sections = document.querySelectorAll('.doc-section, .doc-hero');
+  const links = document.querySelectorAll('.sidebar a');
+
+  const ids = ['intro','workflow-overview','git-setup','github-setup','subdomain',
+    'clone-repo','nodejs-setup','static-setup','permissions','daily-workflow',
+    'private-repo','team-workflow','common-errors','cheatsheet'];
+
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => {
+      if (window.scrollY >= s.offsetTop - 80) current = s.id;
+    });
+    links.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+  });
+</script>
+
+</body>
+</html>

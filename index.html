@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gebeta Docs Portal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap');
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gray: #707070;
+      --light-gray: #f4f4f4;
+      --border: #000000;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background-color: var(--white);
+      color: var(--black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding-top: 5rem;
+      padding-bottom: 5rem;
+    }
+
+    .container {
+      max-width: 1000px;
+      width: 100%;
+      padding: 0 2rem;
+    }
+
+    header {
+      margin-bottom: 4rem;
+      border-bottom: 2px solid var(--black);
+      padding-bottom: 2rem;
+    }
+
+    h1 {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 2.5rem;
+      font-weight: 600;
+      letter-spacing: -1px;
+      margin-bottom: 1rem;
+    }
+    
+    h1::before {
+      content: '> ';
+      color: var(--gray);
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      color: var(--gray);
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+    }
+
+    .card {
+      background: var(--white);
+      border: 1px solid var(--border);
+      padding: 2rem;
+      text-decoration: none;
+      color: var(--black);
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+    }
+
+    .card:hover {
+      background: var(--black);
+      color: var(--white);
+      transform: translateY(-4px);
+      box-shadow: 4px 4px 0 0 var(--border);
+    }
+
+    .card:hover .card-icon,
+    .card:hover p {
+      color: var(--white);
+    }
+
+    .card:hover .arrow {
+      transform: translateX(5px);
+    }
+
+    .card-icon {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .card h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .card p {
+      color: var(--gray);
+      line-height: 1.5;
+      font-size: 0.95rem;
+      flex-grow: 1;
+      margin-bottom: 1.5rem;
+      transition: color 0.2s ease;
+    }
+
+    .card-footer {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid currentColor;
+      padding-top: 1rem;
+    }
+
+    .arrow {
+      transition: transform 0.2s ease;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>gebeta_docs</h1>
+      <p class="subtitle">Technical documentation, integration guides, and API references for Gebeta products.</p>
+    </header>
+
+    <div class="grid">
+      <a href="/gebeta-cloud" class="card">
+        <div class="card-icon">[ cloud ]</div>
+        <h2>Gebeta Cloud</h2>
+        <p>Deployment guides, infrastructure setup, and cloud architecture documentation.</p>
+        <div class="card-footer">
+          <span>Read Docs</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+      
+      <a href="/lms" class="card">
+        <div class="card-icon">[ lms ]</div>
+        <h2>LMS API</h2>
+        <p>Learning Management System API references, integration guides, and tutorials.</p>
+        <div class="card-footer">
+          <span>Coming Soon</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+
+      <a href="/gotera" class="card">
+        <div class="card-icon">[ gotera ]</div>
+        <h2>Gotera Core</h2>
+        <p>Stock management system manuals, operational procedures, and user guides.</p>
+        <div class="card-footer">
+          <span>Coming Soon</span>
+          <span class="arrow">→</span>
+        </div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
