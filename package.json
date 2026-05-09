@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "node server.js",
-    "dev": "vite",
+    "dev": "nodemon server.js -e js,html",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
@@ -20,10 +20,13 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
+    "connect-livereload": "^0.6.1",
     "eslint": "^10.2.1",
     "eslint-plugin-react-hooks": "^7.1.1",
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.5.0",
+    "livereload": "^0.10.3",
+    "nodemon": "^3.1.14",
     "vite": "^8.0.10"
   }
 }

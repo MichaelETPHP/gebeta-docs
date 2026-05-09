@@ -527,6 +527,65 @@
       .cheat-grid { grid-template-columns: 1fr; }
       .doc-footer { flex-direction: column; gap: 8px; padding: 24px; }
     }
+
+    /* ── FOOTER ── */
+    .pro-footer {
+      margin-top: 4rem;
+      border-top: 1px solid var(--gray-200);
+      background: var(--white);
+      padding: 3rem 2rem;
+      width: 100%;
+    }
+
+    .footer-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--black);
+    }
+
+    .footer-logo span { color: var(--gray-500); }
+
+    .footer-copyright {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover {
+      color: var(--black);
+    }
   </style>
 </head>
 <body>
@@ -562,7 +621,7 @@
     <div class="sidebar-group">
       <span class="sidebar-group-label">Daily Work</span>
       <a href="#daily-workflow"><span class="sidebar-num">09</span> Push & Deploy</a>
-      <a href="#private-repo"><span class="sidebar-num">10</span> Private Repo Token</a>
+      <a href="#private-repo"><span class="sidebar-num">10</span> Private Repo Access</a>
       <a href="#team-workflow"><span class="sidebar-num">11</span> Team Workflow</a>
     </div>
     <div class="sidebar-group">
@@ -577,9 +636,9 @@
 
     <!-- HERO -->
     <div class="doc-hero" id="intro">
-      <div class="doc-hero-tag">Gebeta Cloud · Developer Guide</div>
+      <div class="doc-hero-tag">Gebeta Cloud &middot; Team Deployment Runbook</div>
       <h1>Gebeta Cloud<br>Documentation</h1>
-      <p>A complete step-by-step guide for deploying projects to cPanel using GitHub — from creating a subdomain to going live. Written based on real deployment experience to avoid common mistakes.</p>
+      <p>A production-ready deployment guide for the whole development team. It explains how code moves from laptop to GitHub to cPanel, who owns each step, what must be checked before release, and how to recover when something breaks.</p>
       <a href="/" class="back-btn">&larr; Back to Portal</a>
     </div>
 
@@ -590,7 +649,7 @@
         <h2>How It Works</h2>
       </div>
 
-      <p>Every project follows the same three-layer flow. Your code lives on GitHub, gets deployed to cPanel, and is served on a subdomain.</p>
+      <p>Every project follows the same controlled delivery flow. GitHub is the source of truth, cPanel is the runtime, and the subdomain is the public entry point. Production should only receive reviewed, committed, reproducible code.</p>
 
       <div class="workflow">
         <div class="wf-box">Your Laptop<br><small style="font-weight:300;opacity:0.7">write code</small></div>
@@ -605,11 +664,16 @@
       <table>
         <tr><th>Tool</th><th>What it does</th></tr>
         <tr><td><code>Git</code></td><td>Tracks all changes to your code locally</td></tr>
-        <tr><td><code>GitHub</code></td><td>Cloud storage — holds your code repository online</td></tr>
-        <tr><td><code>cPanel</code></td><td>Web hosting control panel — runs your app on the server</td></tr>
+        <tr><td><code>GitHub</code></td><td>Source of truth for the team: branches, pull requests, review history, and release commits</td></tr>
+        <tr><td><code>cPanel</code></td><td>Production runtime: pulls approved code, serves static assets, or runs Node.js through Passenger</td></tr>
         <tr><td><code>Subdomain</code></td><td>A URL like <code>myapp.gebetacloud.com</code> that points to your project folder</td></tr>
         <tr><td><code>Node.js Selector</code></td><td>cPanel tool that runs Node.js apps using Passenger</td></tr>
       </table>
+
+      <div class="callout">
+        <span class="callout-label">Production Rule</span>
+        <p>Do not deploy from a developer's laptop directly to the server. Deploy from GitHub only, so the team can review, reproduce, and roll back every release.</p>
+      </div>
     </section>
 
     <!-- 02 GIT SETUP -->
@@ -619,7 +683,7 @@
         <h2>Git & SSH Setup</h2>
       </div>
 
-      <p>Do this once on your laptop. Git tracks your code changes. SSH lets you connect to GitHub without typing a password every time.</p>
+      <p>Do this once on every developer machine. Git records who changed what, and SSH lets each developer push securely without sharing passwords or tokens.</p>
 
       <h3>Install Git</h3>
       <p>Download from <strong>git-scm.com</strong> and install with default settings.</p>
@@ -628,13 +692,14 @@
 # Should output: git version 2.x.x</code></pre>
 
       <h3>Set Your Identity</h3>
-      <p>Git uses this info on every commit you make.</p>
+      <p>Git uses this identity on every commit. Use your real team name and company email so reviews, ownership, and rollback history are clear.</p>
       <pre><code>git config --global user.name "Your Name"
 git config --global user.email "your@email.com"</code></pre>
 
       <h3>Generate SSH Key</h3>
       <pre><code>ssh-keygen -t ed25519 -C "your@email.com"
-# Press Enter 3 times — accept all defaults, no passphrase needed</code></pre>
+# Recommended for laptops: add a passphrase when prompted
+# For dedicated cPanel deploy keys: use a separate key and restrict it to one repo</code></pre>
 
       <h3>Copy Your Public Key</h3>
       <div class="callout warn">
@@ -667,7 +732,7 @@ notepad %USERPROFILE%\.ssh\id_ed25519.pub</code></pre>
         <h2>GitHub Setup</h2>
       </div>
 
-      <p>Add your SSH key to GitHub so cPanel and your laptop can connect without passwords.</p>
+      <p>Add your developer SSH key to GitHub so your laptop can push without passwords. For cPanel, use a separate deploy key whenever possible instead of a personal developer key.</p>
 
       <div class="steps">
         <div class="step">
@@ -761,7 +826,7 @@ git push -u origin main</code></pre>
         <h2>Clone Repo to cPanel</h2>
       </div>
 
-      <p>There are two ways to clone your GitHub repo to cPanel. Choose based on whether your repo is public or private.</p>
+      <p>There are two supported ways to connect GitHub to cPanel. Public repos can use HTTPS directly. Private repos should use a repo-scoped deploy key first, with a short-lived token only when the cPanel GUI cannot use SSH.</p>
 
       <h3>Public Repo — cPanel Git Version Control GUI</h3>
       <p>For public repos this is the easiest method. cPanel pulls directly using HTTPS — no SSH key needed.</p>
@@ -797,36 +862,39 @@ git push -u origin main</code></pre>
 
       <hr class="divider">
 
-      <h3>Private Repo — Use Personal Access Token</h3>
-      <p>For private repos, generate a token on GitHub and embed it in the clone URL.</p>
+      <h3>Private Repo — Prefer Deploy Key</h3>
+      <p>For private repos, the senior-level default is a GitHub Deploy Key. It grants this server access to one repository only and avoids sharing a developer's personal token.</p>
 
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
-            <h4>Generate Token on GitHub</h4>
-            <p>Login to GitHub → Settings → Developer settings → Personal access tokens → Tokens (classic) → Generate new token → check <code>repo</code> scope → copy token</p>
+            <h4>Create a cPanel SSH Key</h4>
+            <p>In cPanel Terminal, generate a dedicated key for this project. Do not reuse a developer laptop key.</p>
+            <pre><code>ssh-keygen -t ed25519 -C "deploy-myapp@gebetacloud"
+cat ~/.ssh/id_ed25519.pub</code></pre>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <h4>Use Token in Clone URL</h4>
-            <pre><code>https://YOUR_TOKEN@github.com/username/private-repo.git</code></pre>
+            <h4>Add Deploy Key in GitHub</h4>
+            <p>GitHub repo → Settings → Deploy keys → Add deploy key → paste the public key. Enable write access only if the server must push, which should be rare.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
-            <h4>Create in cPanel Git Version Control</h4>
-            <p>Use the token URL as the Clone URL. <strong>Update from Remote</strong> will work via GUI! ✅</p>
+            <h4>Clone with SSH</h4>
+            <pre><code>GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519' git clone \
+  git@github.com:username/private-repo.git /home/gebetaya/myapp</code></pre>
           </div>
         </div>
       </div>
 
       <div class="callout warn">
-        <span class="callout-label">⚠ Security</span>
-        <p>Never share your token publicly. After setup, you can regenerate a new token on GitHub for security.</p>
+        <span class="callout-label">Security</span>
+        <p>A Personal Access Token is a fallback, not the default. If one is required, use a fine-grained token with the minimum repository access, store it only in the deployment notes/password manager, rotate it after setup, and never paste it into screenshots, chat, or commit history.</p>
       </div>
 
       <hr class="divider">
@@ -851,7 +919,7 @@ GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519' git clone \
 
       <table>
         <tr><th>Field</th><th>Value</th><th>Why</th></tr>
-        <tr><td>Node.js version</td><td><code>24.x (recommended)</code></td><td>Always pick latest stable</td></tr>
+        <tr><td>Node.js version</td><td><code>Project-supported LTS</code></td><td>Match the version used locally and documented in the repo</td></tr>
         <tr><td>Application mode</td><td><code>Production</code></td><td>Optimized for live servers</td></tr>
         <tr><td>Application root</td><td><code>myapp</code></td><td>Folder name only, not full path</td></tr>
         <tr><td>Application URL</td><td>Select from dropdown</td><td>Leave text box empty!</td></tr>
@@ -864,7 +932,7 @@ GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519' git clone \
       </div>
 
       <h3>Your server.js Must Use process.env.PORT</h3>
-      <p>cPanel assigns a random port — never hardcode port 3000.</p>
+      <p>cPanel assigns the production port through Passenger. Never hardcode port 3000 in deployed code.</p>
       <pre><code>import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
@@ -893,7 +961,15 @@ app.listen(PORT, () => {
       <h3>Install Dependencies</h3>
       <p>After creating the app, click <strong>Run NPM Install</strong> on the Node.js page, or run via terminal:</p>
       <pre><code>cd /home/gebetaya/myapp
-npm install</code></pre>
+npm ci --omit=dev
+
+# If the project does not have package-lock.json yet, use:
+npm install --omit=dev</code></pre>
+
+      <div class="callout">
+        <span class="callout-label">Release Hygiene</span>
+        <p>Commit <code>package-lock.json</code> for Node.js apps. Production installs should be repeatable, especially when multiple developers are deploying the same project.</p>
+      </div>
 
       <h3>Verify .htaccess was Created</h3>
       <p>cPanel auto-generates this file. If it's missing or duplicated, restart the app.</p>
@@ -918,14 +994,14 @@ npm install</code></pre>
         <h2>Static Site Setup</h2>
       </div>
 
-      <p>For Vite/React projects without a backend server. Just HTML, CSS, and JS files served directly.</p>
+      <p>For Vite/React projects without a backend server. The server only needs the built HTML, CSS, JS, and assets.</p>
 
       <h3>Build Locally First</h3>
       <pre><code>npm run build
 # Creates a dist/ folder with production-ready files</code></pre>
 
       <h3>Push dist Folder to GitHub</h3>
-      <p>By default Vite adds <code>dist</code> to <code>.gitignore</code> — remove that line!</p>
+      <p>For this cPanel Git workflow, the server must receive the built <code>dist</code> folder. If the repo has no CI/CD pipeline that builds on the server, remove <code>dist</code> from <code>.gitignore</code> and commit the production build.</p>
       <pre><code># In .gitignore — remove or comment out:
 # dist
 
@@ -933,6 +1009,11 @@ npm install</code></pre>
 git add .
 git commit -m "build: include dist folder"
 git push origin main</code></pre>
+
+      <div class="callout warn">
+        <span class="callout-label">Team Rule</span>
+        <p>When <code>dist</code> is committed, rebuild it in the same pull request as the source change. A source update without matching build output can deploy old behavior.</p>
+      </div>
 
       <div class="callout error">
         <span class="callout-label">⛔ Delete root index.html on server</span>
@@ -1009,22 +1090,32 @@ touch /home/gebetaya/myapp/tmp/restart.txt
         <h2>Push & Deploy Workflow</h2>
       </div>
 
-      <p>After everything is set up, this is your daily routine.</p>
+      <p>After setup, daily work should move through a pull request before production. Keep <code>main</code> deployable at all times.</p>
 
-      <h3>Step 1 — Code on your laptop</h3>
-      <pre><code># Make your changes, then:
+      <h3>Step 1 — Code on a feature branch</h3>
+      <pre><code># Start from latest main
+git checkout main
+git pull origin main
+
+# Create a branch for your work
+git checkout -b feat/short-description
+
+# Make your changes, then:
 git status               # see what changed
 git add .                # stage all changes
 git commit -m "feat: describe what you changed"
-git push origin main     # upload to GitHub</code></pre>
+git push origin feat/short-description</code></pre>
 
-      <h3>Step 2 — For Node.js projects: build first</h3>
+      <h3>Step 2 — Open Pull Request</h3>
+      <p>Open a pull request into <code>main</code>. At minimum, include what changed, how it was tested, deployment notes, and screenshots for UI changes.</p>
+
+      <h3>Step 3 — For frontend/static projects: build before merge</h3>
       <pre><code>npm run build            # generates dist/ folder
 git add .
 git commit -m "build: production build"
-git push origin main</code></pre>
+git push origin feat/short-description</code></pre>
 
-      <h3>Step 3 — Pull on cPanel</h3>
+      <h3>Step 4 — Pull on cPanel after merge</h3>
       <p><strong>Option A — cPanel GUI (Public repos):</strong><br>
       Git Version Control → your repo → Manage → <strong>Update from Remote</strong></p>
 
@@ -1032,14 +1123,26 @@ git push origin main</code></pre>
       <pre><code>cd /home/gebetaya/myapp
 git pull origin main</code></pre>
 
-      <p><strong>Option C — Force overwrite (when pull fails):</strong></p>
+      <p><strong>Option C — Controlled overwrite (only when approved):</strong></p>
       <pre><code>cd /home/gebetaya/myapp
+git status
+git log --oneline -5
 git fetch origin
 git reset --hard origin/main</code></pre>
 
-      <h3>Step 4 — Restart Node.js app</h3>
+      <h3>Step 5 — Restart Node.js app</h3>
       <pre><code>touch /home/gebetaya/myapp/tmp/restart.txt
 # Or: Node.js Selector → Restart</code></pre>
+
+      <h3>Release Checklist</h3>
+      <table>
+        <tr><th>Check</th><th>Required Before Deploy</th></tr>
+        <tr><td>Pull request reviewed</td><td>At least one teammate reviewed code or content</td></tr>
+        <tr><td>Build verified</td><td><code>npm run build</code> passes locally</td></tr>
+        <tr><td>Secrets checked</td><td>No <code>.env</code>, tokens, passwords, or private keys committed</td></tr>
+        <tr><td>Deployment notes ready</td><td>Subdomain, app type, startup file, env vars, and rollback commit known</td></tr>
+        <tr><td>Smoke test planned</td><td>Home page, login/API path, and critical route checked after deploy</td></tr>
+      </table>
 
       <h3>Commit Message Guide</h3>
       <table>
@@ -1053,39 +1156,51 @@ git reset --hard origin/main</code></pre>
       </table>
     </section>
 
-    <!-- 10 PRIVATE REPO TOKEN -->
+    <!-- 10 PRIVATE REPO ACCESS -->
     <section class="doc-section" id="private-repo">
       <div class="section-header">
         <span class="section-num">10</span>
-        <h2>Private Repo Token</h2>
+        <h2>Private Repo Access</h2>
       </div>
 
-      <p>For private GitHub repos, use a Personal Access Token so cPanel GUI can pull without SSH key issues.</p>
+      <p>For private GitHub repos, use the narrowest access that works. The preferred setup is a repo-scoped Deploy Key. Use a Personal Access Token only when cPanel Git Version Control cannot pull with SSH.</p>
 
-      <h3>Generate Token on GitHub</h3>
+      <h3>Recommended: Deploy Key</h3>
       <div class="steps">
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
-            <h4>Go to GitHub Token Settings</h4>
-            <p>github.com → profile picture → Settings → Developer settings → Personal access tokens → Tokens (classic)</p>
+            <h4>Generate Key on cPanel</h4>
+            <p>Create one SSH key per deployed project. This keeps access isolated if a single project ever needs rotation.</p>
+            <pre><code>ssh-keygen -t ed25519 -C "deploy-myapp@gebetacloud"
+cat ~/.ssh/id_ed25519.pub</code></pre>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <h4>Generate New Token</h4>
-            <p>Click <strong>Generate new token (classic)</strong> → Note: <code>cPanel deployment</code> → check <code>repo</code> (full) → Generate → <strong>Copy immediately</strong> — shown only once!</p>
+            <h4>Add Key to GitHub Repo</h4>
+            <p>GitHub repo → Settings → Deploy keys → Add deploy key. Keep write access disabled unless the server has a documented reason to push.</p>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
-            <h4>Use in Clone URL</h4>
-            <pre><code>https://YOUR_TOKEN@github.com/username/private-repo.git</code></pre>
-            <p>Use this as the Clone URL in cPanel Git Version Control.</p>
+            <h4>Pull With SSH</h4>
+            <pre><code>cd /home/gebetaya/myapp
+git remote set-url origin git@github.com:username/private-repo.git
+GIT_SSH_COMMAND='ssh -i ~/.ssh/id_ed25519' git pull origin main</code></pre>
           </div>
         </div>
+      </div>
+
+      <h3>Fallback: Fine-Grained Token</h3>
+      <p>If the cPanel GUI requires HTTPS, create a fine-grained token limited to the specific repository and read-only contents access when possible.</p>
+      <pre><code>https://USERNAME:TOKEN@github.com/username/private-repo.git</code></pre>
+
+      <div class="callout error">
+        <span class="callout-label">Do Not Share Tokens in Chat</span>
+        <p>Tokens must never be sent in open chat, screenshots, commits, or documentation. Share through the approved password manager or rotate the token immediately after initial setup.</p>
       </div>
     </section>
 
@@ -1096,12 +1211,14 @@ git reset --hard origin/main</code></pre>
         <h2>Team Workflow</h2>
       </div>
 
-      <p>For Gebeta Cloud team members — how to deploy your project to cPanel.</p>
+      <p>For Gebeta Cloud team members, this defines who prepares the code, who owns production access, and what information must exist before a deployment starts.</p>
 
       <div class="workflow">
-        <div class="wf-box outline">Developer<br><small style="opacity:0.6">push code + send token</small></div>
+        <div class="wf-box outline">Developer<br><small style="opacity:0.6">branch + PR + build</small></div>
         <div class="wf-arrow">→</div>
-        <div class="wf-box outline">Admin (Michael)<br><small style="opacity:0.6">create subdomain + clone</small></div>
+        <div class="wf-box outline">Reviewer<br><small style="opacity:0.6">approve main</small></div>
+        <div class="wf-arrow">→</div>
+        <div class="wf-box outline">Admin<br><small style="opacity:0.6">deploy + restart</small></div>
         <div class="wf-arrow">→</div>
         <div class="wf-box">Live<br><small style="font-weight:300;opacity:0.7">deployed</small></div>
       </div>
@@ -1111,46 +1228,64 @@ git reset --hard origin/main</code></pre>
         <div class="step">
           <div class="step-num">1</div>
           <div class="step-body">
-            <h4>Create GitHub Repo & Push Code</h4>
-            <pre><code>git init && git add . && git commit -m "initial"
-git remote add origin git@github.com:username/repo.git
-git push -u origin main</code></pre>
+            <h4>Create Branch & Pull Request</h4>
+            <pre><code>git checkout main
+git pull origin main
+git checkout -b feat/project-change
+git add .
+git commit -m "feat: project change"
+git push origin feat/project-change</code></pre>
           </div>
         </div>
         <div class="step">
           <div class="step-num">2</div>
           <div class="step-body">
-            <h4>Generate Personal Access Token</h4>
-            <p>GitHub → Settings → Developer settings → Tokens (classic) → Generate → check <code>repo</code> → copy</p>
+            <h4>Verify Locally</h4>
+            <p>Run the project build, smoke test the key route, and confirm no secrets or local-only files are included in the commit.</p>
+            <pre><code>npm run build
+git status
+git diff --cached --name-only</code></pre>
           </div>
         </div>
         <div class="step">
           <div class="step-num">3</div>
           <div class="step-body">
-            <h4>Send to Admin</h4>
-            <p>Share with Michael:</p>
+            <h4>Send Deployment Notes</h4>
+            <p>Share with the deployment owner:</p>
             <ul style="font-size:13px;color:#404040;padding-left:20px;margin-top:6px;">
               <li>GitHub repo URL</li>
-              <li>Personal Access Token</li>
               <li>Requested subdomain name</li>
               <li>Project type: Node.js app or Static site</li>
               <li>Startup file name (e.g. <code>server.js</code>)</li>
+              <li>Required environment variables, without secret values in chat</li>
+              <li>Build command and expected output folder</li>
+              <li>Rollback commit hash or previous working release</li>
             </ul>
           </div>
         </div>
       </div>
 
       <h3>For Future Updates</h3>
-      <pre><code># Developer pushes new code:
-git add . && git commit -m "update: new feature" && git push
+      <pre><code># Developer pushes reviewed code:
+git push origin feat/short-description
 
 # Admin pulls on cPanel:
-# Git Version Control → Update from Remote → Restart</code></pre>
+# Merge PR → Git Version Control → Update from Remote → Restart</code></pre>
 
       <div class="callout">
         <span class="callout-label">Team Rule</span>
         <p>Never edit files directly on cPanel File Manager. Always edit locally → push to GitHub → pull to cPanel. Direct edits cause merge conflicts and break deployments.</p>
       </div>
+
+      <h3>Rollback Plan</h3>
+      <pre><code># Find previous working commit
+git log --oneline -10
+
+# Roll production back to a known good commit
+cd /home/gebetaya/myapp
+git fetch origin
+git reset --hard COMMIT_HASH
+touch /home/gebetaya/myapp/tmp/restart.txt</code></pre>
     </section>
 
     <!-- 12 COMMON ERRORS -->
@@ -1184,6 +1319,8 @@ git add . && git commit -m "update: new feature" && git push
 
       <h3>Git Pull Errors</h3>
       <pre><code># Error: local changes would be overwritten
+git status
+# If changes are server-only, document them before overwriting
 git fetch origin
 git reset --hard origin/main
 
@@ -1192,13 +1329,13 @@ git clean -fd
 git pull origin main
 
 # Error: could not read Username (HTTPS on private repo)
-# Use token URL instead:
-# https://TOKEN@github.com/username/repo.git
+# Preferred: use a GitHub Deploy Key with SSH
+# Fallback: use a fine-grained token stored outside the repo
 
 # Error: Permission denied (publickey)
-# SSH key not added to GitHub account
+# SSH key not added to GitHub account or repo deploy keys
 ssh-keygen -t ed25519 -C "your@email.com"
-# Add public key to GitHub → Settings → SSH keys</code></pre>
+# Add public key to GitHub → repo Settings → Deploy keys</code></pre>
 
       <h3>MIME Type Error (React/Vite apps)</h3>
       <pre><code># Error: Expected JavaScript module but got application/octet-stream
@@ -1218,7 +1355,7 @@ touch /home/gebetaya/myapp/myapp/.htaccess</code></pre>
       <p>Same SSH key cannot be added to two different GitHub accounts. Solutions:</p>
       <ul style="font-size:13px;color:#404040;padding-left:20px;margin:8px 0 16px;">
         <li>Add as a <strong>Deploy Key</strong> on the specific repo (Settings → Deploy keys)</li>
-        <li>Use a <strong>Personal Access Token</strong> instead of SSH</li>
+        <li>Use a <strong>fine-grained Personal Access Token</strong> only as a fallback</li>
         <li>Make the repo <strong>public</strong> (no key needed for read access)</li>
       </ul>
     </section>
@@ -1313,9 +1450,29 @@ git fetch origin && git reset --hard origin/main</code></pre>
 </div>
 
 <!-- FOOTER -->
-<footer class="doc-footer">
-  <span>GEBETA CLOUD DOC · v1.0 · 2026</span>
-  <span>Built by Gebeta Technology PLC · <a href="#">gebetacloud.com</a></span>
+<footer class="pro-footer">
+  <div class="footer-container">
+    <div class="footer-left">
+      <div class="footer-logo">gebeta<span>_docs</span></div>
+      <p class="footer-copyright">&copy; 2026 Gebeta Technology PLC. All rights reserved.</p>
+    </div>
+    <div class="footer-right">
+      <a href="https://www.gebetatech.com" target="_blank" class="footer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="2" y1="12" x2="22" y2="12"></line>
+          <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+        </svg>
+        gebetatech.com
+      </a>
+      <a href="tel:091944444499" class="footer-link">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+        </svg>
+        091944444499
+      </a>
+    </div>
+  </div>
 </footer>
 
 <!-- SCROLL TO TOP -->
