@@ -29,13 +29,13 @@ app.get("/docs/gotera", (req, res) => {
   res.sendFile(path.join(__dirname, "gotera.html"));
 });
 
-// Serve React app (portal)
+// Serve React dist
 app.use(express.static(path.join(__dirname, "dist")));
 
-app.get("*", (req, res) => {
+// SPA fallback — Express 5 fix
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, "dist", "index.html"));
 });
 
 app.listen(PORT, () => {
-  console.log(`Gebeta Docs running on port ${PORT}`);
-});
+  console.log(`Gebeta Docs runni
