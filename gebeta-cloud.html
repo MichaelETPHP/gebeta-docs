@@ -501,6 +501,26 @@
 
     .scroll-top:hover { background: var(--gray-700); }
 
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--black);
+      text-decoration: none;
+      border: 1px solid var(--black);
+      padding: 10px 20px;
+      transition: all 0.2s;
+    }
+    
+    .back-btn:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
     @media (max-width: 768px) {
       .sidebar { display: none; }
       .main { padding: 32px 24px 64px; }
@@ -560,6 +580,7 @@
       <div class="doc-hero-tag">Gebeta Cloud · Developer Guide</div>
       <h1>Gebeta Cloud<br>Documentation</h1>
       <p>A complete step-by-step guide for deploying projects to cPanel using GitHub — from creating a subdomain to going live. Written based on real deployment experience to avoid common mistakes.</p>
+      <a href="/" class="back-btn">&larr; Back to Portal</a>
     </div>
 
     <!-- 01 HOW IT WORKS -->
