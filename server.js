@@ -1,24 +1,12 @@
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import livereload from "livereload";
-import connectLivereload from "connect-livereload";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
-const liveReloadServer = livereload.createServer();
-liveReloadServer.watch(__dirname);
-liveReloadServer.server.once("connection", () => {
-  setTimeout(() => {
-    liveReloadServer.refresh("/");
-  }, 100);
-});
-
-app.use(connectLivereload());
 
 app.use((req, res, next) => {
   if (req.path.endsWith('.js')) {
