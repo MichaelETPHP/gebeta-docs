@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bahiran Ride Documentation</title>
+  <title>Bahiran Ride Platform Documentation</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -11,9 +11,13 @@
       --black: #000000;
       --white: #ffffff;
       --gray-50: #fafafa;
+      --gray-100: #f4f4f4;
       --gray-200: #e8e8e8;
+      --gray-300: #d0d0d0;
       --gray-400: #a0a0a0;
       --gray-500: #707070;
+      --gray-700: #404040;
+      --gray-900: #141414;
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -65,7 +69,7 @@
     }
 
     .sidebar {
-      width: 256px;
+      width: 280px;
       flex-shrink: 0;
       background: var(--gray-50);
       border-right: 1px solid var(--gray-200);
@@ -90,7 +94,6 @@
     .sidebar a {
       display: flex;
       align-items: center;
-      gap: 10px;
       padding: 7px 20px;
       font-size: 13px;
       color: var(--gray-500);
@@ -114,17 +117,18 @@
 
     .main {
       flex: 1;
-      max-width: 800px;
+      max-width: 1120px;
       padding: 56px 64px 96px;
     }
 
     .doc-hero {
       border-bottom: 1px solid var(--gray-200);
       padding-bottom: 48px;
-      margin-bottom: 56px;
+      margin-bottom: 48px;
     }
 
-    .doc-hero-tag {
+    .doc-hero-tag,
+    .section-label {
       font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
       color: var(--gray-400);
@@ -134,7 +138,7 @@
     }
 
     .doc-hero h1 {
-      font-size: 40px;
+      font-size: 42px;
       font-weight: 700;
       letter-spacing: -1px;
       line-height: 1.1;
@@ -142,10 +146,164 @@
     }
 
     .doc-hero p {
-      font-size: 16px;
+      font-size: 17px;
       color: var(--gray-500);
-      max-width: 560px;
+      max-width: 720px;
       line-height: 1.7;
+    }
+
+    .meta-grid,
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1px;
+      background: var(--black);
+      border: 1px solid var(--black);
+      margin-top: 32px;
+    }
+
+    .meta-item,
+    .status-card {
+      background: var(--white);
+      padding: 18px;
+    }
+
+    .meta-label,
+    .status-card span {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-500);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .meta-value,
+    .status-card strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .doc-section {
+      padding: 36px 0 44px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .doc-section h2 {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 22px;
+    }
+
+    .doc-section h3 {
+      font-size: 20px;
+      font-weight: 650;
+      margin: 30px 0 12px;
+    }
+
+    .doc-section h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 24px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .doc-section p {
+      color: var(--gray-700);
+      max-width: 820px;
+      margin-bottom: 16px;
+    }
+
+    .doc-list {
+      color: var(--gray-700);
+      margin: 0 0 18px 20px;
+      max-width: 860px;
+    }
+
+    .doc-list li { margin-bottom: 8px; }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 22px 0 28px;
+      border: 1px solid var(--black);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+      background: var(--white);
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--gray-200);
+      border-right: 1px solid var(--gray-200);
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    th {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    th:last-child,
+    td:last-child { border-right: 0; }
+
+    .code-block {
+      background: var(--gray-900);
+      color: var(--white);
+      border: 1px solid var(--black);
+      padding: 16px;
+      margin: 18px 0 24px;
+      overflow-x: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .callout {
+      border-left: 3px solid var(--black);
+      background: var(--gray-50);
+      padding: 18px 20px;
+      margin: 22px 0 28px;
+      color: var(--gray-700);
+    }
+
+    .notice-red {
+      border: 1px solid #f0b4b4;
+      border-left: 4px solid #c62828;
+      background: #fff5f5;
+      color: #8a1f1f;
+      padding: 16px 18px;
+      margin: 24px 0 6px;
+      max-width: 820px;
+    }
+
+    .notice-red strong {
+      display: block;
+      color: #7f1616;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
     }
 
     .back-btn {
@@ -168,8 +326,11 @@
       color: var(--white);
     }
 
+    .top-back {
+      margin: 0 0 28px;
+    }
+
     .pro-footer {
-      margin-top: 4rem;
       border-top: 1px solid var(--gray-200);
       background: var(--white);
       padding: 3rem 2rem;
@@ -222,8 +383,28 @@
       transition: color 0.2s;
     }
 
-    .footer-link:hover {
-      color: var(--black);
+    .footer-link:hover { color: var(--black); }
+
+    @media (max-width: 860px) {
+      .layout { display: block; }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        padding: 16px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .sidebar-group-label { padding-top: 10px; }
+      .main { padding: 36px 24px 72px; }
+      .doc-hero h1 { font-size: 32px; }
+      .doc-section h2 { font-size: 25px; }
+      .topbar { padding: 0 18px; }
+      .topbar-meta { display: none; }
     }
   </style>
 </head>
@@ -235,28 +416,779 @@
   </div>
 
   <div class="layout">
-    <div class="sidebar">
+    <nav class="sidebar" aria-label="Bahiran Ride documentation navigation">
       <div class="sidebar-group">
-        <span class="sidebar-group-label">Overview</span>
-        <a href="#" class="active">Introduction</a>
-        <a href="#">Getting Started</a>
+        <span class="sidebar-group-label">Business</span>
+        <a href="#overview" class="active">Project Overview</a>
+        <a href="#business-model">Business Model</a>
+        <a href="#roadmap">Roadmap</a>
       </div>
       <div class="sidebar-group">
-        <span class="sidebar-group-label">Guides</span>
-        <a href="#">Rides</a>
-        <a href="#">Drivers</a>
-        <a href="#">Operations</a>
+        <span class="sidebar-group-label">Product</span>
+        <a href="#rider-app">Rider App</a>
+        <a href="#driver-app">Driver App</a>
+        <a href="#admin-panel">Admin Panel</a>
       </div>
-    </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Development</span>
+        <a href="#technology">Technology Stack</a>
+        <a href="#database">Database</a>
+        <a href="#matching">Matching Engine</a>
+        <a href="#realtime">Real-Time</a>
+        <a href="#deployment">Deployment</a>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Reference</span>
+        <a href="#fares">Fares</a>
+        <a href="#performance">Performance</a>
+        <a href="#notifications">Notifications</a>
+        <a href="#decisions">Decisions</a>
+      </div>
+    </nav>
 
-    <div class="main">
-      <div class="doc-hero">
-        <div class="doc-hero-tag">Product Documentation</div>
-        <h1>Bahiran Ride Documentation</h1>
-        <p>This documentation section is ready for your Bahiran Ride content. Share the sections and copy, and I will place them into this page.</p>
+    <main class="main">
+      <header class="doc-hero" id="top">
+        <a href="/" class="back-btn top-back">&larr; Back to Portal</a>
+        <div class="doc-hero-tag">Technical & Business Documentation</div>
+        <h1>Bahiran Ride Platform Documentation</h1>
+        <p>City-exclusive ride-hailing platform documentation for Bahir Dar, Ethiopia. This page combines product, development, business, operations, and infrastructure references for the full platform.</p>
+
+        <div class="notice-red">
+          <strong>Changeable Business Values</strong>
+          Commission percentages, fare examples, completion percentages, launch targets, latency targets, and other numeric values are current planning assumptions. They can change during development, business review, or Admin Panel configuration.
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Project</span>
+            <strong class="meta-value">Bahirdar - City-Exclusive Ride-Hailing Platform</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Company</span>
+            <strong class="meta-value">Gebeta Technology PLC</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Team</span>
+            <strong class="meta-value">Mulewave</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Lead Developer</span>
+            <strong class="meta-value">Michael Taye (@MikaET)</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Project Started</span>
+            <strong class="meta-value">March 19, 2026</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Document Date</span>
+            <strong class="meta-value">June 2026</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Target Market</span>
+            <strong class="meta-value">Bahir Dar, Ethiopia - single city launch</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Service Model</span>
+            <strong class="meta-value">Configurable commission model: 15% platform / 85% driver</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="doc-section" id="overview">
+        <div class="section-label">1. Project Overview</div>
+        <h2>What is Bahirdar?</h2>
+        <p>Bahirdar is a city-exclusive ride-hailing platform designed and built from the ground up for the roads, riders, and drivers of Bahir Dar, Ethiopia. Unlike global platforms that struggle with local road networks, payment infrastructure, and language barriers, Bahirdar is purpose-built for its city using Ethiopian mapping, local payment methods, and an interface tuned for the local context.</p>
+
+        <h3>Platform Components</h3>
+        <ul class="doc-list">
+          <li><strong>Rider Mobile App (React Native):</strong> passengers book and track rides in real time.</li>
+          <li><strong>Driver Mobile App (React Native):</strong> drivers receive, navigate, and complete ride requests.</li>
+          <li><strong>Node.js / Express Backend API:</strong> the central engine connecting all components.</li>
+          <li><strong>React / Vite Admin Panel:</strong> the platform owner manages drivers, riders, fares, and analytics.</li>
+        </ul>
+
+        <h3>Project Timeline & Completion Status</h3>
+        <p>The project was initiated on March 19, 2026 with the goal of delivering a fully operational ride-hailing MVP for Bahir Dar. Current completion status as of June 2026:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Component</th><th>Completion</th><th>Status Notes</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Rider App (React Native)</td><td>100%</td><td>Complete; ready for Play Store submission.</td></tr>
+              <tr><td>Driver App (React Native)</td><td>~55%</td><td>Active development; core screens complete.</td></tr>
+              <tr><td>Backend API (Node.js/Express)</td><td>~70%</td><td>Core routes live; matching and payment in progress.</td></tr>
+              <tr><td>Admin Panel (React/Vite)</td><td>~50%</td><td>Dashboard and driver management in progress.</td></tr>
+              <tr><td>PostgreSQL / PostGIS Schema</td><td>~80%</td><td>Core tables done; indexes being tuned.</td></tr>
+              <tr><td>OSRM Routing Server</td><td>~90%</td><td>Running on VPS; integrated via SSH tunnel.</td></tr>
+              <tr><td>Real-time Layer (Socket.io + Redis)</td><td>~65%</td><td>Connection layer done; broadcast tuning ongoing.</td></tr>
+              <tr><td>Overall Platform</td><td>~65%</td><td>MVP launch targeting Q3 2026.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="business-model">
+        <div class="section-label">1.3 Business Model</div>
+        <h2>Commission-Based Ride-Hailing</h2>
+        <p>Bahirdar operates on a commission model. The current planning split is 15% retained by the platform and 85% kept by the driver. Pricing is calculated per trip using base fare plus distance rate plus time rate, all configurable from the Admin Panel.</p>
+        <div class="notice-red">
+          <strong>Configurable Commission</strong>
+          The 15% platform commission, 85% driver share, fare values, surge multipliers, and related payment numbers are changeable business settings. Treat them as current assumptions until finalized by the business team.
+        </div>
+        <ul class="doc-list">
+          <li><strong>Platform commission:</strong> currently 15% of each completed fare.</li>
+          <li><strong>Driver share:</strong> currently 85% of each completed fare.</li>
+          <li><strong>Pricing:</strong> base fare + (km rate x distance) + (minute rate x duration).</li>
+          <li><strong>Primary payment:</strong> cash, paid directly from rider to driver and logged in the app.</li>
+          <li><strong>Roadmap payment:</strong> TeleBirr digital payments.</li>
+          <li><strong>Surge pricing:</strong> configurable multiplier by zone and time, managed from the Admin Panel.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="technology">
+        <div class="section-label">2. Technology Stack</div>
+        <h2>Complete Stack Reference</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Technology</th><th>Category</th><th>Role</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>TypeScript</td><td>Language</td><td>Entire codebase: frontend, backend, and mobile.</td></tr>
+              <tr><td>React Native</td><td>Mobile Framework</td><td>Rider App and Driver App for Android and iOS.</td></tr>
+              <tr><td>Node.js</td><td>Runtime</td><td>Frontend and admin development server.</td></tr>
+              <tr><td>Bun</td><td>Runtime</td><td>Backend API server with fast TypeScript execution.</td></tr>
+              <tr><td>Express.js</td><td>API Framework</td><td>REST API routing and middleware.</td></tr>
+              <tr><td>React + Vite</td><td>Web Framework</td><td>Admin panel web application.</td></tr>
+              <tr><td>Tailwind CSS</td><td>Styling</td><td>Admin panel and web interfaces.</td></tr>
+              <tr><td>shadcn/ui</td><td>UI Components</td><td>Admin panel component library.</td></tr>
+              <tr><td>Zustand</td><td>State Management</td><td>Admin panel global state.</td></tr>
+              <tr><td>Axios</td><td>HTTP Client</td><td>API calls from frontend and mobile apps.</td></tr>
+              <tr><td>Zod</td><td>Validation</td><td>Input validation on client and server sides.</td></tr>
+              <tr><td>JWT</td><td>Authentication</td><td>Stateless auth for all three apps.</td></tr>
+              <tr><td>Socket.io</td><td>Real-time Engine</td><td>Live ride matching, tracking, and status updates.</td></tr>
+              <tr><td>Redis</td><td>Cache + Pub/Sub</td><td>Live location cache, Socket.io adapter, and rate limiting.</td></tr>
+              <tr><td>PostgreSQL</td><td>Primary Database</td><td>Persistent data for rides, users, and payments.</td></tr>
+              <tr><td>PostGIS</td><td>Geo Extension</td><td>Spatial queries for driver proximity and geofencing.</td></tr>
+              <tr><td>OSRM</td><td>Routing Engine</td><td>Self-hosted route calculation, ETA, and distance.</td></tr>
+              <tr><td>Gebeta Maps</td><td>Map Display</td><td>Ethiopian map tiles for rider and driver apps.</td></tr>
+              <tr><td>Firebase FCM</td><td>Push Notifications</td><td>Ride alerts for riders and drivers.</td></tr>
+              <tr><td>Afro Message</td><td>SMS Provider</td><td>OTP delivery via Ethiopian carriers.</td></tr>
+              <tr><td>Coolify</td><td>Deployment PaaS</td><td>Self-hosted deployment on Hostinger VPS.</td></tr>
+              <tr><td>Traefik</td><td>Reverse Proxy</td><td>SSL termination and domain routing.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Technology Decision Rationale</h3>
+        <h4>OSRM vs Google Maps Directions API</h4>
+        <p>The platform uses OSRM (Open Source Routing Machine) self-hosted on the VPS rather than a paid external routing API.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Factor</th><th>Detail</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cost</td><td>OSRM is free with no per-request API billing or monthly caps.</td></tr>
+              <tr><td>Latency</td><td>OSRM on local VPS targets ~20-50ms compared with external API latency around ~150-300ms.</td></tr>
+              <tr><td>Data</td><td>OSRM uses OpenStreetMap data with good Bahir Dar road coverage.</td></tr>
+              <tr><td>Privacy</td><td>Route queries never leave the VPS, supporting full data sovereignty.</td></tr>
+              <tr><td>Offline resilience</td><td>OSRM keeps routing live even if internet connectivity is degraded.</td></tr>
+              <tr><td>Limitation</td><td>No real-time traffic; acceptable at Bahir Dar MVP scale.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4>Gebeta Maps vs Google Maps for Display</h4>
+        <p>Gebeta Maps is an Ethiopian mapping company providing map tiles with accurate local road data, Amharic street names, and Ethiopian landmarks that global map providers often miss in secondary cities. This gives riders and drivers a familiar and accurate map experience.</p>
+
+        <h4>Redis for Live Location</h4>
+        <p>Driver GPS coordinates update every 3 seconds. Writing these directly to PostgreSQL would create unsustainable write load. Redis stores live locations as ephemeral key-value entries with a short TTL, while PostgreSQL receives periodic location flushes for historical records.</p>
+
+        <h4>PostGIS for Nearest Driver Queries</h4>
+        <p>PostGIS extends PostgreSQL with geospatial indexing. A GIST spatial index on driver location columns allows the matching engine to find the nearest available drivers within a target radius in under 50 milliseconds without an external geo-service.</p>
+      </section>
+
+      <section class="doc-section" id="database">
+        <div class="section-label">3. Database Architecture</div>
+        <h2>PostgreSQL and PostGIS Foundation</h2>
+        <p>The platform uses PostgreSQL with the PostGIS extension, hosted on a self-hosted Supabase instance deployed via Coolify on a Hostinger VPS. The backend API connects through a connection pool, and PostGIS is enabled for all geospatial queries.</p>
+
+        <h3>Core Table Structure</h3>
+        <h4>Users and Profiles</h4>
+        <ul class="doc-list">
+          <li><strong>users:</strong> id, phone, name, email, role (rider/driver/admin), status (active/banned/pending), created_at.</li>
+          <li><strong>driver_profiles:</strong> user_id FK, vehicle_type, plate_number, license_number, rating, total_trips, is_online, current_location (PostGIS POINT), documents_verified, verified_by_admin.</li>
+          <li><strong>rider_profiles:</strong> user_id FK, default_payment_method, rating, total_rides, created_at.</li>
+        </ul>
+
+        <h4>Ride Flow Tables</h4>
+        <ul class="doc-list">
+          <li><strong>ride_requests:</strong> id, rider_id, pickup_location (POINT), dropoff_location (POINT), status, estimated_fare, created_at.</li>
+          <li><strong>rides:</strong> id, request_id, driver_id, rider_id, fare_amount, distance_km, duration_minutes, polyline, started_at, completed_at.</li>
+          <li><strong>ride_status_logs:</strong> ride_id, status, actor_id, timestamp, with a full audit trail for every status change.</li>
+        </ul>
+
+        <h4>Payments</h4>
+        <ul class="doc-list">
+          <li><strong>payments:</strong> id, ride_id, rider_id, driver_id, gross_amount, configurable platform_fee, configurable driver_payout, method (cash/telebirr), status, created_at.</li>
+          <li><strong>driver_earnings:</strong> driver_id, period_type, period_start, total_rides, gross_earned, platform_deducted, net_earned.</li>
+        </ul>
+
+        <h4>Location and Routing</h4>
+        <ul class="doc-list">
+          <li><strong>driver_locations:</strong> driver_id, location (POINT), heading, speed, updated_at, synced from Redis every 30 seconds for historical records.</li>
+          <li><strong>zones:</strong> id, name, boundary (POLYGON), fare_multiplier, is_active, used for service areas and surge zones.</li>
+          <li><strong>saved_places:</strong> user_id, label (Home/Work/Other), location (POINT), address_text, created_at.</li>
+        </ul>
+
+        <h4>Configuration and Admin</h4>
+        <ul class="doc-list">
+          <li><strong>fare_config:</strong> vehicle_type, base_fare, per_km_rate, per_minute_rate, minimum_fare, currency, updated_at.</li>
+          <li><strong>app_settings:</strong> key, value, updated_by, updated_at, used for platform-wide feature toggles.</li>
+          <li><strong>notifications:</strong> id, user_id, type, title, body, is_read, created_at.</li>
+          <li><strong>otp_records:</strong> phone, code (hashed), expires_at, used, stored in Redis rather than PostgreSQL.</li>
+        </ul>
+
+        <h3>Spatial Index Strategy</h3>
+        <p>GIST indexes are placed on all PostGIS geometry columns for fast spatial lookups. The most critical index is on driver_locations.location, allowing the nearest-driver query to scan geometrically relevant rows rather than the entire table. At 200 online drivers, this query executes in under 5ms.</p>
+      </section>
+
+      <section class="doc-section" id="rider-app">
+        <div class="section-label">4. Rider App Workflow</div>
+        <h2>Complete Passenger Experience</h2>
+
+        <h3>Onboarding</h3>
+        <ul class="doc-list">
+          <li>App opens with a Bahirdar branded splash screen.</li>
+          <li>Rider enters phone number and receives OTP through Afro Message SMS.</li>
+          <li>Rider enters 6-digit OTP, verified against Redis-stored OTP.</li>
+          <li>JWT access token and refresh token are issued on success.</li>
+          <li>Rider completes profile setup with name and optional profile photo.</li>
+          <li>Home screen loads with Gebeta Map centered on Bahir Dar.</li>
+        </ul>
+
+        <h3>Booking a Ride</h3>
+        <ul class="doc-list">
+          <li>Rider sees the city map with live GPS location.</li>
+          <li>Rider taps "Where to?" and opens destination search.</li>
+          <li>Rider types a destination name or taps the map to pin a dropoff point.</li>
+          <li>OSRM calculates road distance, duration, and route polyline.</li>
+          <li>Route is drawn from pickup to dropoff in blue.</li>
+          <li>Fare estimate appears using base fare, distance rate, and minute rate.</li>
+          <li>Rider reviews fare and taps "Request Ride".</li>
+          <li>A ride_request record is created with status pending and the matching engine activates immediately.</li>
+        </ul>
+
+        <h3>Waiting for Match</h3>
+        <ul class="doc-list">
+          <li>Rider sees animated search: "Looking for a nearby driver..."</li>
+          <li>Available driver dots are visible on the surrounding map.</li>
+          <li>Matching engine identifies and notifies the best available driver.</li>
+          <li>When the driver accepts, a driver profile card appears with name, photo, vehicle type, plate number, and rating.</li>
+          <li>Live ETA is calculated from OSRM for driver-to-pickup routing.</li>
+          <li>Driver location dot animates toward pickup in real time.</li>
+          <li>Push notification confirms: "Your driver is on the way".</li>
+        </ul>
+
+        <h3>Driver En Route to Pickup</h3>
+        <ul class="doc-list">
+          <li>Rider watches the driver move on the map in real time with 3-second updates.</li>
+          <li>ETA countdown updates as the driver approaches.</li>
+          <li>Rider can call the driver through in-app masked call.</li>
+          <li>Rider can cancel before driver arrival, subject to cancellation policy.</li>
+          <li>Driver taps "I Have Arrived" and the rider receives a push notification.</li>
+        </ul>
+
+        <h3>Active Trip</h3>
+        <ul class="doc-list">
+          <li>Driver taps "Start Trip", starting trip timer and fare meter.</li>
+          <li>Status updates to in_progress on both apps.</li>
+          <li>Rider sees live map, route, and current vehicle position.</li>
+          <li>Estimated arrival to destination updates during the ride.</li>
+          <li>SOS emergency button remains visible.</li>
+        </ul>
+
+        <h3>Trip Completion and Payment</h3>
+        <ul class="doc-list">
+          <li>Driver taps "End Trip" at destination.</li>
+          <li>Final fare is calculated from actual distance and duration.</li>
+          <li>Fare breakdown screen appears to the rider.</li>
+          <li>Cash payment: rider pays driver the displayed amount directly.</li>
+          <li>App records payment and ride status changes to completed.</li>
+          <li>Rider rates driver from 1-5 stars with optional text comment.</li>
+          <li>Trip is added to ride history.</li>
+        </ul>
+
+        <h3>Additional Rider Features</h3>
+        <ul class="doc-list">
+          <li>Ride History with route replay, fare details, and driver information.</li>
+          <li>Saved Places for Home, Work, and custom favorites with map pinning.</li>
+          <li>Profile Settings for name, photo, and phone number.</li>
+          <li>Notifications Inbox for ride updates and platform announcements.</li>
+          <li>In-App Support for contacting support directly from the app.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="driver-app">
+        <div class="section-label">5. Driver App Workflow</div>
+        <h2>Driver Operations Lifecycle</h2>
+
+        <h3>Driver Registration and Verification</h3>
+        <ul class="doc-list">
+          <li>Driver downloads the app and registers by phone number with OTP verification.</li>
+          <li>Driver submits full name, photo, and national ID upload.</li>
+          <li>Vehicle registration includes type (bajaj/taxi/car), plate number, and vehicle photo.</li>
+          <li>Driver uploads license photo and submits documents for Admin Panel review.</li>
+          <li>Admin approves or rejects documents with a written reason.</li>
+          <li>Driver receives push notification of approval or rejection.</li>
+          <li>Approved drivers are activated and can go online.</li>
+        </ul>
+
+        <h3>Going Online</h3>
+        <ul class="doc-list">
+          <li>Driver opens app with Offline status by default.</li>
+          <li>Driver toggles "Go Online".</li>
+          <li>App streams GPS coordinates every 3 seconds through Socket.io.</li>
+          <li>Backend writes location to Redis as driver:{id}:location with 10-second TTL.</li>
+          <li>Driver is marked available in the matching pool and appears on nearby rider maps.</li>
+        </ul>
+
+        <h3>Receiving a Ride Request</h3>
+        <ul class="doc-list">
+          <li>Matching engine identifies the driver as the best candidate.</li>
+          <li>Ride request popup shows rider pickup point on mini-map, estimated distance to rider, destination area, and estimated fare.</li>
+          <li>Driver has a 30-second countdown to accept or decline.</li>
+          <li>Accept assigns the ride and launches in-app navigation to pickup.</li>
+          <li>Decline or timeout sends the request to the next driver in the match queue.</li>
+        </ul>
+
+        <h3>Pickup and Active Trip Navigation</h3>
+        <ul class="doc-list">
+          <li>Gebeta Maps navigation launches automatically with route to pickup.</li>
+          <li>Driver live location streams to rider app every 3 seconds.</li>
+          <li>Driver arrives and taps "I Have Arrived".</li>
+          <li>Driver can call rider through in-app masked call.</li>
+          <li>Driver taps "Start Trip", triggering fare meter and timer.</li>
+          <li>Gebeta Maps shows the route to destination while GPS continues streaming to the rider.</li>
+          <li>Driver arrives at destination and taps "End Trip".</li>
+        </ul>
+
+        <h3>Trip Completion and Dashboard</h3>
+        <ul class="doc-list">
+          <li>Final fare is displayed to the driver.</li>
+          <li>Driver shows fare to rider and collects cash.</li>
+          <li>Driver rates rider from 1-5 stars.</li>
+          <li>Trip is logged to history and earnings update in the dashboard.</li>
+          <li>Driver automatically returns to Online status for the next ride.</li>
+          <li>Dashboard shows today's trips, gross earned, platform fee, net earned, weekly/monthly history, ratings, vehicle documents, and payout history roadmap.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="matching">
+        <div class="section-label">6. Ride Matching Engine</div>
+        <h2>How Matching Works</h2>
+        <p>The matching engine runs on the backend as soon as a ride_request record is created.</p>
+        <ul class="doc-list">
+          <li>Rider submits ride request and backend receives pickup GPS coordinates.</li>
+          <li>Backend reads all online drivers from Redis with sub-10ms lookup.</li>
+          <li>PostGIS filters drivers within 5km of pickup.</li>
+          <li>Top 10 nearest drivers are returned and sorted by straight-line proximity.</li>
+          <li>OSRM calculates actual road distance from each driver to pickup for accuracy.</li>
+          <li>Drivers are scored by road distance (70%), rating (20%), and acceptance rate (10%).</li>
+          <li>Highest-scored driver receives ride request through Socket.io.</li>
+          <li>Driver has a 30-second response window.</li>
+          <li>On accept, the ride is assigned and all other candidates stand down.</li>
+          <li>On decline or timeout, the next driver in the ranked list receives the request.</li>
+          <li>If all candidates are exhausted, the rider is notified that no drivers are available nearby.</li>
+        </ul>
+        <pre class="code-block"><code>SELECT driver_id, ST_Distance(location, $pickup) AS dist
+FROM driver_locations
+WHERE is_available = true
+ORDER BY dist ASC
+LIMIT 10;</code></pre>
+
+        <h3>Matching Performance Targets</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Operation</th><th>Target Latency</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Driver list read from Redis</td><td>&lt; 10ms</td></tr>
+              <tr><td>PostGIS nearest-driver query</td><td>&lt; 50ms</td></tr>
+              <tr><td>OSRM road distance calculation per driver</td><td>&lt; 80ms</td></tr>
+              <tr><td>Total matching decision time</td><td>&lt; 200ms</td></tr>
+              <tr><td>Request delivered to driver device via Socket.io</td><td>&lt; 500ms end-to-end</td></tr>
+              <tr><td>Driver response window</td><td>30 seconds</td></tr>
+              <tr><td>Re-dispatch on decline or timeout</td><td>&lt; 100ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Edge Cases</h3>
+        <ul class="doc-list">
+          <li>If a selected driver goes offline, the next candidate receives the request immediately.</li>
+          <li>If the rider cancels before acceptance, all pending notifications are cancelled from the queue.</li>
+          <li>If no drivers are within 5km, radius expands to 10km and rider is notified of longer wait.</li>
+          <li>If a driver has a trip just completing, they are excluded from matching until trip status closes.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="fares">
+        <div class="section-label">7. Fare & Commission Calculation</div>
+        <h2>Fare Formula</h2>
+        <p>The final fare is calculated at trip completion using actual measured trip data rather than only the pre-trip estimate.</p>
+        <pre class="code-block"><code>Final Fare = Base Fare + (Distance km x Per-km Rate) + (Duration min x Per-minute Rate)
+Final Fare = max(calculated, Minimum Fare)
+If Surge Active: Final Fare = Final Fare x Surge Multiplier</code></pre>
+
+        <h3>Example Calculation</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Component</th><th>Calculation</th><th>Amount</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Base Fare</td><td>15 ETB</td><td>Fixed starting amount</td></tr>
+              <tr><td>Distance</td><td>4.2 km x 8 ETB/km</td><td>33.6 ETB</td></tr>
+              <tr><td>Duration</td><td>12 min x 1.5 ETB/min</td><td>18.0 ETB</td></tr>
+              <tr><td>Subtotal</td><td>15 + 33.6 + 18</td><td>66.6 ETB</td></tr>
+              <tr><td>Minimum Check</td><td>66.6 ETB &gt; 30 ETB minimum</td><td>No adjustment</td></tr>
+              <tr><td>Surge Multiplier</td><td>1.0x normal hours</td><td>66.6 ETB</td></tr>
+              <tr><td>Final Fare</td><td>Rounded to nearest 0.5 ETB</td><td>67 ETB</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Commission Split on 67 ETB Example</h3>
+        <div class="notice-red">
+          <strong>Example Only</strong>
+          This commission split is an example based on the current 15% / 85% planning assumption. The final commission rate and payout amount may change.
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Party</th><th>Amount</th><th>Description</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Gross Fare (Rider Pays)</td><td>67 ETB</td><td>Total trip amount.</td></tr>
+              <tr><td>Platform Commission (current 15%)</td><td>10.05 ETB</td><td>Retained by Gebeta Technology PLC under the current assumption.</td></tr>
+              <tr><td>Driver Payout (current 85%)</td><td>56.95 ETB</td><td>Driver earnings for this trip under the current assumption.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Surge Pricing</h3>
+        <p>The Admin Panel allows the platform owner to define surge zones as geographic polygons drawn on a map and assign surge multipliers. Surge can be activated manually or on a schedule. Riders see the surge multiplier before confirming a ride. Typical surge scenarios for Bahir Dar include Friday evenings, market days, and morning rush hours at key pickup zones.</p>
+
+        <h3>Configurable Fare Parameters</h3>
+        <ul class="doc-list">
+          <li>Base fare per vehicle type.</li>
+          <li>Per-km rate per vehicle type.</li>
+          <li>Per-minute rate per vehicle type.</li>
+          <li>Minimum fare to protect drivers on short trips.</li>
+          <li>Surge zones drawn as polygons in the Admin Panel.</li>
+          <li>Surge multipliers assigned per zone.</li>
+          <li>Surge schedule for time-based auto-activation.</li>
+          <li>Platform commission percentage adjustable globally.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="admin-panel">
+        <div class="section-label">8. Admin Panel</div>
+        <h2>Platform Management</h2>
+        <p>The Admin Panel is a React + Vite web application used exclusively by the platform owner. It accesses the same backend API as the mobile apps through admin-authenticated JWT endpoints and acts as the control center for platform operations.</p>
+
+        <h3>Admin Modules</h3>
+        <h4>Live Dashboard</h4>
+        <ul class="doc-list">
+          <li>Real-time counters for active riders online, drivers online, and rides in progress.</li>
+          <li>Today's revenue card with total fares, platform earnings, and driver payouts.</li>
+          <li>Live ride map showing active rides as animated pins.</li>
+          <li>Charts for hourly ride volume, daily revenue for the past 7 days, and top pickup zones.</li>
+          <li>Recent completed rides feed.</li>
+        </ul>
+
+        <h4>Driver Management</h4>
+        <ul class="doc-list">
+          <li>Full driver list with status, vehicle, rating, and document verification state.</li>
+          <li>Pending verification queue for reviewing uploaded documents and approving or rejecting with written reason.</li>
+          <li>Force-offline action for emergency driver deactivation.</li>
+          <li>Driver detail view with full trip history, earnings, ratings, and complaints.</li>
+          <li>Performance metrics including acceptance rate, completion rate, and average rating.</li>
+        </ul>
+
+        <h4>Rider, Ride, Fare, and Financial Management</h4>
+        <ul class="doc-list">
+          <li>Rider list with activity status, rating, trip count, and registration date.</li>
+          <li>Complaint investigation with warning or ban actions.</li>
+          <li>Completed rides log searchable by driver, rider, date, zone, and amount.</li>
+          <li>Cancelled rides analysis and disputed ride handling.</li>
+          <li>Fare parameter configuration per vehicle type.</li>
+          <li>Surge zone drawing, scheduled multipliers, and manual surge activation.</li>
+          <li>Daily, weekly, and monthly revenue summaries.</li>
+          <li>Platform earnings vs driver payouts breakdown.</li>
+          <li>Cash vs digital payment method analysis and export to PDF or CSV.</li>
+        </ul>
+
+        <h4>Notifications and Platform Settings</h4>
+        <ul class="doc-list">
+          <li>Send push notifications to all riders, all drivers, or specific users.</li>
+          <li>Maintenance mode toggle disables ride booking across the platform.</li>
+          <li>Feature toggles for surge pricing, new registrations, and promo codes.</li>
+          <li>Service boundary polygon defines Bahir Dar coverage area, rejecting outside requests.</li>
+          <li>Driver response timeout, SMS provider, and FCM configuration.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="realtime">
+        <div class="section-label">9. Real-Time Architecture</div>
+        <h2>Socket.io Event Flows</h2>
+        <h3>Driver Location Streaming</h3>
+        <ul class="doc-list">
+          <li>Driver emits driver:location_update every 3 seconds with lat, lng, heading, and speed.</li>
+          <li>Backend receives the event and writes to Redis key driver:{id}:location with 10-second TTL.</li>
+          <li>If driver has an active ride, backend broadcasts rider:driver_location to rider socket room.</li>
+          <li>Redis flushes to PostgreSQL driver_locations table every 30 seconds for historical records.</li>
+        </ul>
+
+        <h3>Ride Request Dispatch</h3>
+        <ul class="doc-list">
+          <li>Backend emits driver:ride_request to the selected driver with full request payload.</li>
+          <li>Driver emits driver:accept_ride or driver:decline_ride.</li>
+          <li>On accept, backend emits rider:driver_assigned with driver profile and ETA.</li>
+        </ul>
+
+        <h3>Trip Status Events</h3>
+        <ul class="doc-list">
+          <li>driver:arrived is relayed to rider through rider:driver_arrived push and socket.</li>
+          <li>driver:trip_started updates the database and emits rider:trip_started.</li>
+          <li>driver:trip_ended calculates fare and emits rider:trip_ended with fare breakdown.</li>
+        </ul>
+
+        <h3>Redis Architecture</h3>
+        <p>Redis serves three distinct roles: live location storage, Socket.io adapter support for broadcasting across backend instances, and rate limiting for OTP and API abuse prevention.</p>
+
+        <h3>Development SSH Tunnels</h3>
+        <p>During local development, two SSH tunnels connect to VPS-hosted services before the dev server starts.</p>
+        <pre class="code-block"><code>ssh -L 6379:localhost:6379 user@vps_ip   # Redis tunnel
+ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
+        <p>Both tunnels must be active before running the backend development server.</p>
+      </section>
+
+      <section class="doc-section" id="performance">
+        <div class="section-label">10. Performance & Latency</div>
+        <h2>Targets</h2>
+        <h3>API Response Times</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Endpoint</th><th>Target Response Time</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Login / Token refresh</td><td>&lt; 100ms</td></tr>
+              <tr><td>OTP request server-side</td><td>&lt; 300ms, SMS delivery 2-5s by carrier</td></tr>
+              <tr><td>Ride request creation</td><td>&lt; 200ms</td></tr>
+              <tr><td>Nearest driver query (PostGIS)</td><td>&lt; 50ms</td></tr>
+              <tr><td>OSRM route calculation (local VPS)</td><td>&lt; 100ms</td></tr>
+              <tr><td>Fare estimate</td><td>&lt; 150ms</td></tr>
+              <tr><td>Trip history (paginated)</td><td>&lt; 200ms</td></tr>
+              <tr><td>Admin dashboard data load</td><td>&lt; 500ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Real-Time Latency Targets</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Operation</th><th>Target Latency</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Driver location update to rider</td><td>&lt; 500ms end-to-end</td></tr>
+              <tr><td>Ride request delivery to driver</td><td>&lt; 300ms</td></tr>
+              <tr><td>Accept/decline status back to rider</td><td>&lt; 200ms</td></tr>
+              <tr><td>Socket.io reconnection</td><td>&lt; 2 seconds</td></tr>
+              <tr><td>Redis read (driver location)</td><td>&lt; 5ms</td></tr>
+              <tr><td>Redis write (driver location)</td><td>&lt; 10ms</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Mobile App Performance</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Operation</th><th>Target</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Cold start to home screen</td><td>&lt; 3 seconds</td></tr>
+              <tr><td>Map load with driver markers</td><td>&lt; 2 seconds</td></tr>
+              <tr><td>Route polyline render after OSRM</td><td>&lt; 500ms</td></tr>
+              <tr><td>GPS first fix on device</td><td>&lt; 5 seconds, hardware dependent</td></tr>
+              <tr><td>FCM push notification delivery</td><td>&lt; 3 seconds</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Scalability Design</h3>
+        <p>The current infrastructure targets up to 500 concurrent riders and 200 online drivers, sufficient for Bahir Dar MVP scale on the Hostinger VPS.</p>
+        <ul class="doc-list">
+          <li>Redis clustering handles increased socket adapter load as connections grow.</li>
+          <li>PostgreSQL read replicas are added when reporting queries impact write performance.</li>
+          <li>OSRM horizontal scaling adds a second routing instance behind a load balancer for routing surge.</li>
+          <li>Backend horizontal scaling uses Redis Pub/Sub adapter so multiple backend pods can share socket events.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="notifications">
+        <div class="section-label">11. SMS & Push Notifications</div>
+        <h2>Messaging Infrastructure</h2>
+        <h3>SMS Provider - Afro Message</h3>
+        <p>Afro Message (afromessage.com) is the SMS API used for OTP delivery. It routes through Ethiopian carriers such as Ethio Telecom and Safaricom Ethiopia for reliable local delivery, which is preferred over global providers with unreliable routes into Ethiopia.</p>
+        <ul class="doc-list">
+          <li>OTP length: 6 digits.</li>
+          <li>OTP expiry: 5 minutes, stored as TTL in Redis rather than PostgreSQL.</li>
+          <li>Max resend attempts: 3 per 10-minute window, rate limited to prevent abuse.</li>
+          <li>Delivery target: under 10 seconds to Ethiopian numbers.</li>
+        </ul>
+
+        <h3>Firebase Cloud Messaging</h3>
+        <p>FCM handles all push notifications for both Android apps.</p>
+        <h4>Rider Notifications</h4>
+        <ul class="doc-list">
+          <li>Driver assigned and on the way.</li>
+          <li>Driver arrived at pickup.</li>
+          <li>Trip started.</li>
+          <li>Trip completed with fare summary.</li>
+          <li>Ride cancelled by driver or system.</li>
+        </ul>
+
+        <h4>Driver Notifications</h4>
+        <ul class="doc-list">
+          <li>New ride request, also delivered via Socket.io for speed.</li>
+          <li>Rider cancelled before pickup.</li>
+          <li>Account approved by admin.</li>
+          <li>Account rejected by admin with reason included.</li>
+        </ul>
+
+        <h4>Admin Broadcast</h4>
+        <p>The owner can send custom push notifications to all riders, all drivers, or specific users from the Admin Panel.</p>
+      </section>
+
+      <section class="doc-section" id="deployment">
+        <div class="section-label">12. Deployment Infrastructure</div>
+        <h2>Server Stack</h2>
+        <p>All backend services run on Hostinger VPS instances managed through Coolify. Traefik handles SSL and routing. The architecture is fully self-hosted with no external PaaS dependency.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Service</th><th>Configuration</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Backend API (Express/Bun)</td><td>api.bahirdar.com, Coolify managed container.</td></tr>
+              <tr><td>Admin Panel (React/Vite)</td><td>admin.bahirdar.com, Coolify managed container.</td></tr>
+              <tr><td>PostgreSQL (Supabase)</td><td>Self-hosted on VPS via Coolify.</td></tr>
+              <tr><td>Redis</td><td>Internal VPS, port 6379, not public-facing.</td></tr>
+              <tr><td>OSRM Server</td><td>Internal VPS, port 5000, not public-facing.</td></tr>
+              <tr><td>SSL Certificates</td><td>Auto-provisioned by Traefik via Let's Encrypt.</td></tr>
+              <tr><td>Domain Routing</td><td>Traefik reverse proxy with middleware rules.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Mobile App Distribution</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Platform</th><th>Details</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Rider App (Android)</td><td>Google Play Store, com.gebeta.bahirdar.rider.</td></tr>
+              <tr><td>Driver App (Android)</td><td>Google Play Store, com.gebeta.bahirdar.driver.</td></tr>
+              <tr><td>Build Format</td><td>AAB (.aab), required by Play Store 2025.</td></tr>
+              <tr><td>Target SDK</td><td>Android 35, required for 2025 Play Store submissions.</td></tr>
+              <tr><td>Minimum SDK</td><td>Android 24 (Android 7.0).</td></tr>
+              <tr><td>Build Command</td><td>cd android &amp;&amp; ./gradlew bundleRelease</td></tr>
+              <tr><td>iOS</td><td>Roadmap; App Store submission after Android MVP is stable.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Required Environment Variables</h3>
+        <ul class="doc-list">
+          <li>DATABASE_URL - PostgreSQL connection string.</li>
+          <li>REDIS_URL - Redis connection string.</li>
+          <li>JWT_SECRET - access token signing key.</li>
+          <li>JWT_REFRESH_SECRET - refresh token signing key.</li>
+          <li>AFROMESSAGE_API_KEY - SMS OTP provider key.</li>
+          <li>FCM_SERVER_KEY - Firebase push notification key.</li>
+          <li>OSRM_BASE_URL - internal OSRM server base URL.</li>
+          <li>GEBETA_MAPS_API_KEY - map tiles and geocoding.</li>
+          <li>PLATFORM_COMMISSION_RATE - current configurable default 0.15 (15%).</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="roadmap">
+        <div class="section-label">13. Roadmap</div>
+        <h2>Post-MVP and Expansion Plan</h2>
+        <h3>Phase 2 - Post-MVP Launch</h3>
+        <ul class="doc-list">
+          <li>TeleBirr digital payment integration for cashless rides.</li>
+          <li>Driver earnings withdrawal to TeleBirr wallet from Driver App.</li>
+          <li>Scheduled rides for future time and date bookings.</li>
+          <li>Promo codes and referral bonuses for rider acquisition.</li>
+          <li>Driver daily and weekly incentive bonuses managed from Admin Panel.</li>
+          <li>Cancellation fee policy enforcement.</li>
+        </ul>
+
+        <h3>Phase 3 - Scale and Expansion</h3>
+        <ul class="doc-list">
+          <li>Multi-vehicle tier: bajaj, standard, premium, with separate fare tables.</li>
+          <li>Corporate accounts for companies booking employee rides with monthly billing.</li>
+          <li>iOS Rider App and Driver App on Apple App Store.</li>
+          <li>Amharic language toggle throughout rider and driver apps.</li>
+          <li>Expansion to a second Ethiopian city.</li>
+          <li>Live traffic layer integration when data becomes available for Bahir Dar.</li>
+          <li>Driver partner app for fleet owners managing multiple vehicles.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="decisions">
+        <div class="section-label">Appendix</div>
+        <h2>Key Technical Decisions Summary</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Decision</th><th>Rationale</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>OSRM self-hosted</td><td>Zero routing cost, &lt;50ms latency, Ethiopian OSM road data.</td></tr>
+              <tr><td>Gebeta Maps display</td><td>Accurate Ethiopian tiles, Amharic labels, and local landmarks.</td></tr>
+              <tr><td>Redis for live GPS</td><td>Prevents PostgreSQL write storms from 3-second driver pings.</td></tr>
+              <tr><td>PostGIS spatial index</td><td>Nearest-driver query under 50ms at expected driver density.</td></tr>
+              <tr><td>Socket.io + Redis adapter</td><td>Real-time events work across multiple backend pods.</td></tr>
+              <tr><td>Bun runtime for API</td><td>Faster TypeScript startup and execution compared with Node.js.</td></tr>
+              <tr><td>Coolify + Traefik</td><td>Full infrastructure control, no vendor lock-in, and automatic SSL.</td></tr>
+              <tr><td>Self-hosted Supabase</td><td>Full PostgreSQL control, no external billing, and no row limits.</td></tr>
+              <tr><td>Firebase FCM</td><td>Most reliable push delivery on Android, the primary target.</td></tr>
+              <tr><td>Afro Message SMS</td><td>Ethiopian carrier routing for reliable local OTP delivery.</td></tr>
+              <tr><td>JWT stateless auth</td><td>Scales horizontally without sticky sessions or session database.</td></tr>
+              <tr><td>Zod validation</td><td>Runtime type safety catches bad data before it reaches the database.</td></tr>
+              <tr><td>Configurable 15% / 85% split</td><td>Current launch assumption designed to attract quality drivers; subject to business review.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="callout">
+          End of document: Bahirdar Platform | Gebeta Technology PLC | Mulewave | June 2026.
+        </div>
+
         <a href="/" class="back-btn">&larr; Back to Portal</a>
-      </div>
-    </div>
+      </section>
+    </main>
   </div>
 
   <footer class="pro-footer">
