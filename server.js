@@ -35,6 +35,10 @@ app.get("/bahiran-ride", (req, res) => {
   res.sendFile(path.join(__dirname, "bahiran-ride.html"));
 });
 
+app.get("/taxiapp", (req, res) => {
+  res.sendFile(path.join(__dirname, "taxiapp.html"));
+});
+
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.use((req, res) => {

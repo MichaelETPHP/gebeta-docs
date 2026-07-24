@@ -1,0 +1,1289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Taxi App Play Store Auto-Submit Documentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f4f4f4;
+      --gray-200: #e8e8e8;
+      --gray-300: #d0d0d0;
+      --gray-400: #a0a0a0;
+      --gray-500: #707070;
+      --gray-700: #404040;
+      --gray-900: #141414;
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: var(--black);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 200;
+    }
+
+    .topbar-brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--white);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .topbar-brand span { color: var(--gray-500); }
+
+    .topbar-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-500);
+      letter-spacing: 1px;
+      flex: 0 0 auto;
+    }
+
+    .topbar-search {
+      flex: 0 1 380px;
+      position: relative;
+      display: flex;
+      align-items: center;
+      margin: 0 20px;
+    }
+
+    .topbar-search input {
+      width: 100%;
+      height: 34px;
+      border: 1px solid var(--gray-700);
+      background: var(--gray-900);
+      color: var(--white);
+      padding: 0 92px 0 34px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      outline: none;
+    }
+
+    .topbar-search input:focus {
+      border-color: var(--white);
+      background: var(--black);
+    }
+
+    .topbar-search input::placeholder { color: var(--gray-500); }
+
+    .search-icon {
+      position: absolute;
+      left: 11px;
+      width: 14px;
+      height: 14px;
+      color: var(--gray-400);
+      pointer-events: none;
+    }
+
+    .search-count {
+      position: absolute;
+      right: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-400);
+      letter-spacing: 0.4px;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+
+    .search-highlight {
+      background: #ffeb3b;
+      color: var(--black);
+      padding: 0 2px;
+    }
+
+    .search-highlight.active-match {
+      background: #ff9800;
+      box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.35);
+    }
+
+    .search-results {
+      position: absolute;
+      top: 42px;
+      left: 0;
+      right: 0;
+      max-height: min(420px, calc(100vh - 88px));
+      overflow-y: auto;
+      background: var(--white);
+      border: 1px solid var(--black);
+      box-shadow: 6px 6px 0 0 rgba(0, 0, 0, 0.22);
+      display: none;
+      z-index: 500;
+    }
+
+    .search-results.open { display: block; }
+
+    .search-result {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--gray-200);
+      background: var(--white);
+      color: var(--black);
+      padding: 10px 12px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .search-result:hover,
+    .search-result:focus {
+      background: var(--gray-100);
+      outline: none;
+    }
+
+    .search-result-section {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--gray-500);
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .search-result-snippet {
+      display: block;
+      font-size: 12px;
+      color: var(--gray-700);
+      line-height: 1.45;
+    }
+
+    .search-empty {
+      padding: 12px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-500);
+    }
+
+    .layout {
+      display: flex;
+      margin-top: 52px;
+      min-height: calc(100vh - 52px);
+    }
+
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      background: var(--gray-50);
+      border-right: 1px solid var(--gray-200);
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      padding: 28px 0;
+    }
+
+    .sidebar-group-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--gray-400);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 16px 20px 6px;
+      display: block;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      padding: 7px 20px;
+      font-size: 13px;
+      color: var(--gray-500);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color 0.15s var(--ease-out), background 0.15s var(--ease-out), border-color 0.15s var(--ease-out);
+    }
+
+    .sidebar a:hover {
+      color: var(--black);
+      background: var(--gray-200);
+      border-left-color: var(--gray-400);
+    }
+
+    .sidebar a.active {
+      color: var(--black);
+      background: var(--white);
+      border-left-color: var(--black);
+      font-weight: 500;
+    }
+
+    .main {
+      flex: 1;
+      max-width: 1120px;
+      padding: 56px 64px 96px;
+    }
+
+    .doc-hero {
+      border-bottom: 1px solid var(--gray-200);
+      padding-bottom: 48px;
+      margin-bottom: 48px;
+    }
+
+    .doc-hero-tag,
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-400);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .doc-hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .doc-hero p {
+      font-size: 17px;
+      color: var(--gray-500);
+      max-width: 720px;
+      line-height: 1.7;
+    }
+
+    .meta-grid,
+    .status-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1px;
+      background: var(--black);
+      border: 1px solid var(--black);
+      margin-top: 32px;
+    }
+
+    .meta-item,
+    .status-card {
+      background: var(--white);
+      padding: 18px;
+    }
+
+    .meta-label,
+    .status-card span {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-500);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .meta-value,
+    .status-card strong {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .doc-section {
+      padding: 36px 0 44px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .doc-section h2 {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 22px;
+    }
+
+    .doc-section h3 {
+      font-size: 20px;
+      font-weight: 650;
+      margin: 30px 0 12px;
+    }
+
+    .doc-section h4 {
+      font-size: 15px;
+      font-weight: 700;
+      margin: 24px 0 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+    }
+
+    .doc-section p {
+      color: var(--gray-700);
+      max-width: 820px;
+      margin-bottom: 16px;
+    }
+
+    .doc-list {
+      color: var(--gray-700);
+      margin: 0 0 18px 20px;
+      max-width: 860px;
+    }
+
+    .doc-list li { margin-bottom: 8px; }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 22px;
+      height: 22px;
+      padding: 0 6px;
+      margin-right: 10px;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      border-radius: 2px;
+      vertical-align: middle;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 22px 0 28px;
+      border: 1px solid var(--black);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 680px;
+      background: var(--white);
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid var(--gray-200);
+      border-right: 1px solid var(--gray-200);
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    th {
+      background: var(--black);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    th:last-child,
+    td:last-child { border-right: 0; }
+
+    td code, p code, li code {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9em;
+      background: var(--gray-100);
+      border: 1px solid var(--gray-200);
+      padding: 1px 5px;
+      border-radius: 3px;
+      color: var(--black);
+      white-space: nowrap;
+    }
+
+    /* ── Code blocks: VS Code Dark+ inspired syntax colors ── */
+    .code-block {
+      position: relative;
+      background: #1e1e1e;
+      color: #d4d4d4;
+      border: 1px solid var(--black);
+      border-radius: 4px;
+      padding: 46px 16px 16px;
+      margin: 18px 0 24px;
+      overflow-x: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .code-block .code-lang {
+      position: absolute;
+      top: 10px;
+      left: 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.4px;
+      text-transform: uppercase;
+      color: #6a6a6a;
+    }
+
+    .code-block .tok-cmd { color: #dcdcaa; }
+    .code-block .tok-flag { color: #9cdcfe; }
+    .code-block .tok-string { color: #ce9178; }
+    .code-block .tok-comment { color: #6a9955; font-style: italic; }
+    .code-block .tok-key { color: #9cdcfe; }
+    .code-block .tok-var { color: #4fc1ff; }
+    .code-block .tok-num { color: #b5cea8; }
+    .code-block .tok-punct { color: #808080; }
+    .code-block .tok-kw { color: #569cd6; }
+    .code-block .tok-ok { color: #4ec9b0; }
+
+    .code-copy {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      border: 1px solid #3c3c3c;
+      background: #2d2d2d;
+      color: #d4d4d4;
+      padding: 6px 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: background 0.15s var(--ease-out), color 0.15s var(--ease-out), border-color 0.15s var(--ease-out), transform 0.1s var(--ease-out);
+    }
+
+    .code-copy svg {
+      width: 12px;
+      height: 12px;
+      flex: 0 0 auto;
+    }
+
+    .code-copy:hover {
+      background: #383838;
+      border-color: #565656;
+    }
+
+    .code-copy:active {
+      transform: scale(0.94);
+    }
+
+    .code-copy.copied {
+      background: #16825d;
+      color: var(--white);
+      border-color: #16825d;
+    }
+
+    .callout {
+      border-left: 3px solid var(--black);
+      background: var(--gray-50);
+      padding: 18px 20px;
+      margin: 22px 0 28px;
+      color: var(--gray-700);
+    }
+
+    .notice-red {
+      border: 1px solid #f0b4b4;
+      border-left: 4px solid #c62828;
+      background: #fff5f5;
+      color: #8a1f1f;
+      padding: 16px 18px;
+      margin: 24px 0 6px;
+      max-width: 820px;
+    }
+
+    .notice-red strong {
+      display: block;
+      color: #7f1616;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .notice-amber {
+      border: 1px solid #f0dba1;
+      border-left: 4px solid #b8860b;
+      background: #fffaf0;
+      color: #6b4e00;
+      padding: 16px 18px;
+      margin: 24px 0 28px;
+      max-width: 820px;
+    }
+
+    .notice-amber strong {
+      display: block;
+      color: #6b4e00;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 32px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--black);
+      text-decoration: none;
+      border: 1px solid var(--black);
+      padding: 10px 20px;
+      transition: background 0.2s var(--ease-out), color 0.2s var(--ease-out), transform 0.1s var(--ease-out);
+    }
+
+    .back-btn:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .back-btn:active { transform: scale(0.97); }
+
+    .top-back {
+      margin: 0 0 28px;
+    }
+
+    .pro-footer {
+      border-top: 1px solid var(--gray-200);
+      background: var(--white);
+      padding: 3rem 2rem;
+      width: 100%;
+    }
+
+    .footer-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-left {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .footer-logo {
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: var(--black);
+    }
+
+    .footer-logo span { color: var(--gray-500); }
+
+    .footer-copyright {
+      font-size: 0.85rem;
+      color: var(--gray-500);
+    }
+
+    .footer-right {
+      display: flex;
+      gap: 2rem;
+    }
+
+    .footer-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem;
+      transition: color 0.2s var(--ease-out);
+    }
+
+    .footer-link:hover { color: var(--black); }
+
+    .support-chat {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 300;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: #229ed9;
+      color: var(--white);
+      border: 1px solid #168ac0;
+      border-radius: 4px;
+      padding: 12px 16px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-decoration: none;
+      box-shadow: 4px 4px 0 0 rgba(0, 0, 0, 0.18);
+      transition: transform 0.2s var(--ease-out), background 0.2s var(--ease-out);
+    }
+
+    .support-chat:hover {
+      background: #1b8fc5;
+      transform: translateY(-3px);
+    }
+
+    .support-chat:active { transform: translateY(-1px) scale(0.98); }
+
+    .support-chat svg {
+      width: 18px;
+      height: 18px;
+      flex: 0 0 auto;
+      fill: currentColor;
+    }
+
+    @media (max-width: 860px) {
+      .layout { display: block; }
+
+      .sidebar {
+        position: static;
+        width: 100%;
+        height: auto;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        padding: 16px 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--gray-200);
+      }
+
+      .sidebar-group-label { padding-top: 10px; }
+      .main { padding: 36px 24px 72px; }
+      .doc-hero h1 { font-size: 32px; }
+      .doc-section h2 { font-size: 25px; }
+      .topbar {
+        padding: 0 18px;
+        gap: 12px;
+      }
+      .topbar-brand {
+        font-size: 11px;
+        letter-spacing: 1.6px;
+      }
+      .topbar-search {
+        flex: 1 1 auto;
+        margin: 0;
+      }
+      .search-results {
+        left: -74px;
+        right: 0;
+      }
+      .topbar-meta { display: none; }
+      .support-chat {
+        right: 16px;
+        bottom: 16px;
+        padding: 11px 13px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="/" class="topbar-brand">gebeta<span>_docs</span></a>
+    <div class="topbar-search" role="search">
+      <svg class="search-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"></circle>
+        <path d="m16.5 16.5 4 4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></path>
+      </svg>
+      <input id="doc-search" type="search" placeholder="Search documentation" autocomplete="off" aria-label="Search documentation" aria-controls="search-results">
+      <span class="search-count" id="search-count">0 matches</span>
+      <div class="search-results" id="search-results" role="listbox" aria-label="Search results"></div>
+    </div>
+    <div class="topbar-meta">v1.0.0 &mdash; Taxi App Deploy</div>
+  </div>
+
+  <div class="layout">
+    <nav class="sidebar" aria-label="Taxi App Play Store documentation navigation">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Overview</span>
+        <a href="#overview" class="active">Introduction</a>
+        <a href="#prerequisites">Prerequisites</a>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Build Process</span>
+        <a href="#prebuild">1. Regenerate Native Project</a>
+        <a href="#signing">2. Release Signing</a>
+        <a href="#version-code">3. Bump Version Code</a>
+        <a href="#build">4. Build Signed AAB</a>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Submission</span>
+        <a href="#submit">5. Auto-Submit</a>
+        <a href="#verify">6. Verify on Play Console</a>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Reference</span>
+        <a href="#quick-reference">Driver vs Rider Reference</a>
+        <a href="#quota-reset">When Cloud Quota Resets</a>
+        <a href="#troubleshooting">Troubleshooting</a>
+        <a href="#cheatsheet">Full Command Cheatsheet</a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="doc-hero" id="top">
+        <a href="/" class="back-btn top-back">&larr; Back to Portal</a>
+        <div class="doc-hero-tag">Deployment &amp; Release Documentation</div>
+        <h1>Taxi App Play Store Auto-Submit</h1>
+        <p>Manual build-and-submit path for pushing <strong>BahirdarDriver</strong> and <strong>BahirdarRide</strong> Android app updates to the Google Play Store when the EAS free-tier cloud build quota is used up. Proven working for both apps on Windows.</p>
+
+        <div class="notice-red">
+          <strong>Shell Requirement</strong>
+          Every command on this page must run in <strong>Command Prompt (cmd.exe)</strong>, not PowerShell. <code>eas build --local</code> does not work on Windows for Android, which is why this manual local-build path exists.
+        </div>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Applies To</span>
+            <strong class="meta-value">BahirdarDriver &amp; BahirdarRide (Android)</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Company</span>
+            <strong class="meta-value">Gebeta Technology PLC</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Team</span>
+            <strong class="meta-value">Mulewave</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Lead Developer</span>
+            <strong class="meta-value">Michael Taye (@MikaET)<br>michael@mulewave.com</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Shell</span>
+            <strong class="meta-value">Command Prompt (cmd.exe)</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Build Method</span>
+            <strong class="meta-value">Local Gradle build + EAS auto-submit</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Trigger</span>
+            <strong class="meta-value">EAS free-tier cloud build quota exhausted</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Document Date</span>
+            <strong class="meta-value">July 2026</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="doc-section" id="overview">
+        <div class="section-label">1. Introduction</div>
+        <h2>Why This Path Exists</h2>
+        <p>Both <strong>BahirdarDriver</strong> and <strong>BahirdarRide</strong> normally ship to the Play Store through EAS Build's free-tier cloud queue, which auto-submits on completion. That free tier has a monthly build quota. Once it runs out mid-month, cloud builds stop working until the quota resets &mdash; but a release doesn't have to wait. This page documents the manual fallback: build the signed Android App Bundle locally with Gradle, then hand it to <code>eas-cli submit</code> for the actual Play Store upload.</p>
+        <p>The two apps share the exact same process. Only the project folder and the release keystore details differ between them &mdash; every step below calls this out explicitly.</p>
+
+        <h3>What This Covers</h3>
+        <ul class="doc-list">
+          <li>Regenerating the native Android project with Expo prebuild.</li>
+          <li>Wiring real release signing into <code>build.gradle</code> so the build isn't signed with the debug key.</li>
+          <li>Bumping <code>versionCode</code> so Play Console accepts the new build.</li>
+          <li>Producing a signed <code>.aab</code> with a local Gradle build.</li>
+          <li>Auto-submitting that <code>.aab</code> to the Play Store with <code>eas-cli</code>.</li>
+          <li>Verifying the upload landed and is in review.</li>
+        </ul>
+
+        <h3>Check Quota Before Starting</h3>
+        <p>Confirm the EAS free-tier quota is actually the blocker before doing a manual build &mdash; it resets monthly.</p>
+        <div class="callout">
+          Check remaining quota at <strong>expo.dev/accounts/zmichaeleth/settings/billing</strong>. If quota has already reset, skip this entire manual path and use the one-line cloud auto-submit command in <a href="#quota-reset">When Cloud Quota Resets</a> instead.
+        </div>
+      </section>
+
+      <section class="doc-section" id="prerequisites">
+        <div class="section-label">1.1 Prerequisites</div>
+        <h2>Before You Start</h2>
+        <ul class="doc-list">
+          <li>Windows machine with <strong>Command Prompt (cmd.exe)</strong> &mdash; not PowerShell, not Git Bash, for every command on this page.</li>
+          <li>Node.js, npm, and a working Android SDK / Gradle toolchain already set up for local Expo builds.</li>
+          <li><code>npx eas-cli</code> available in the project (no global install required &mdash; <code>npx</code> resolves it per project).</li>
+          <li>Access to the project root for whichever app you're building: <code>BahirdarDriver</code> or <code>BahirdarRide</code>, inside <code>C:\SVELT_APP\CityBird-Bahirdar\</code>.</li>
+          <li>The release keystore for that app, either in <code>credentials\</code> in the project root or already documented below.</li>
+          <li>Play Console access to the corresponding app, to read the current highest <code>versionCode</code> from App bundle explorer.</li>
+          <li>Logged in to <code>eas-cli</code> with an account that has submit permission on the target app.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="prebuild">
+        <div class="section-label">2. Step 1</div>
+        <h2>Regenerate the Native Project</h2>
+        <p>Start from the app's project root and regenerate the native Android project with Expo prebuild.</p>
+
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarDriver
+<span class="tok-comment">:: or: cd C:\SVELT_APP\CityBird-Bahirdar\BahirdarRide</span>
+
+<span class="tok-cmd">npx</span> expo prebuild <span class="tok-flag">--platform</span> android <span class="tok-flag">--clean</span></code></pre>
+
+        <div class="notice-red">
+          <strong>--clean Wipes Signing</strong>
+          <code>--clean</code> wipes and regenerates the <strong>entire</strong> <code>android\</code> folder every time, which resets <code>versionCode</code> back to <code>1</code> and resets release signing back to the debug key. <a href="#signing">Step 2</a> and <a href="#version-code">Step 3</a> below must be redone every time you run this with <code>--clean</code>.
+        </div>
+
+        <h3>Shortcut: Skip --clean</h3>
+        <p>If nothing native changed since your last build &mdash; no new native module, no <code>app.json</code> / <code>app.config</code> change &mdash; drop <code>--clean</code>:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">npx</span> expo prebuild <span class="tok-flag">--platform</span> android</code></pre>
+        <p>This does <strong>not</strong> wipe <code>android\</code>, so the signing config from last time is still there. Skip straight to <a href="#version-code">Step 3</a>.</p>
+      </section>
+
+      <section class="doc-section" id="signing">
+        <div class="section-label">3. Step 2</div>
+        <h2>Wire Up Real Release Signing</h2>
+        <p>Open <code>android\app\build.gradle</code>. In <code>signingConfigs</code>, add a <code>release</code> block next to <code>debug</code>. The keystore file, alias, and passwords differ between the two apps.</p>
+
+        <h3><span class="step-badge">D</span>Driver App</h3>
+        <pre class="code-block"><span class="code-lang">gradle</span><code><span class="tok-key">release</span> {
+    <span class="tok-key">storeFile</span> file(<span class="tok-string">'bahirdar-driver-upload.jks'</span>)
+    <span class="tok-key">storePassword</span> <span class="tok-string">'BahirdarDriver@2026'</span>
+    <span class="tok-key">keyAlias</span> <span class="tok-string">'upload'</span>
+    <span class="tok-key">keyPassword</span> <span class="tok-string">'BahirdarDriver@2026'</span>
+}</code></pre>
+        <p>Copy the keystore into place:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">copy</span> credentials\bahirdar-driver-upload.jks android\app\bahirdar-driver-upload.jks</code></pre>
+
+        <h3><span class="step-badge">R</span>Rider App</h3>
+        <p>The keystore and passwords are already saved in <code>credentials.json</code> at the project root &mdash; no need to re-download via <code>eas-cli credentials</code>.</p>
+        <pre class="code-block"><span class="code-lang">gradle</span><code><span class="tok-key">release</span> {
+    <span class="tok-key">storeFile</span> file(<span class="tok-string">'keystore.jks'</span>)
+    <span class="tok-key">storePassword</span> <span class="tok-string">'01259492296f768e8cdac8876a9e4540'</span>
+    <span class="tok-key">keyAlias</span> <span class="tok-string">'9b2a40fd7f27272b4c43a6f83c9a9805'</span>
+    <span class="tok-key">keyPassword</span> <span class="tok-string">'d8ee7d3b7ac130c245990e5a842a3c59'</span>
+}</code></pre>
+        <p>Copy the keystore into place:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">copy</span> credentials\android\keystore.jks android\app\keystore.jks</code></pre>
+
+        <h3>Point the Release Build at the New Config</h3>
+        <p>For either app, in <code>buildTypes { release { ... } }</code> change:</p>
+        <pre class="code-block"><span class="code-lang">gradle</span><code><span class="tok-key">signingConfig</span> signingConfigs.debug   <span class="tok-punct">&rarr;</span>   <span class="tok-key">signingConfig</span> signingConfigs.release</code></pre>
+      </section>
+
+      <section class="doc-section" id="version-code">
+        <div class="section-label">4. Step 3</div>
+        <h2>Bump the Version Code</h2>
+        <p>In Play Console, go to <strong>[App] &rarr; App bundle explorer</strong> and find the current highest <code>versionCode</code> across all tracks. In <code>android\app\build.gradle</code>, set <code>versionCode</code> to <strong>one higher</strong> than that number.</p>
+        <div class="callout">
+          Check <em>all</em> tracks (Internal, Closed, Open, Production) &mdash; the highest <code>versionCode</code> across any of them is the one that matters, not just Production.
+        </div>
+      </section>
+
+      <section class="doc-section" id="build">
+        <div class="section-label">5. Step 4</div>
+        <h2>Build the Signed .aab</h2>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> android
+<span class="tok-cmd">set</span> <span class="tok-var">NODE_ENV</span>=<span class="tok-string">production</span>
+<span class="tok-cmd">gradlew.bat</span> bundleRelease</code></pre>
+        <p>Wait for <code class="tok-ok">BUILD SUCCESSFUL</code> &mdash; typically 5&ndash;20 minutes on a cold run. Output lands at:</p>
+        <pre class="code-block"><span class="code-lang">path</span><code>android\app\build\outputs\bundle\release\app-release.aab</code></pre>
+      </section>
+
+      <section class="doc-section" id="submit">
+        <div class="section-label">6. Step 5</div>
+        <h2>Auto-Submit</h2>
+        <p>Run this from the <strong>app root</strong>, not from inside <code>android\</code>:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarDriver
+<span class="tok-cmd">npx</span> eas-cli submit <span class="tok-flag">-p</span> android <span class="tok-flag">--path</span> android\app\build\outputs\bundle\release\app-release.aab</code></pre>
+        <p>Expect:</p>
+        <pre class="code-block"><span class="code-lang">output</span><code><span class="tok-ok">&check; Submitted your app to Google Play Store!</span></code></pre>
+      </section>
+
+      <section class="doc-section" id="verify">
+        <div class="section-label">7. Step 6</div>
+        <h2>Verify</h2>
+        <ul class="doc-list">
+          <li>Play Console &rarr; <strong>App bundle explorer</strong> &mdash; the new version code appears within minutes.</li>
+          <li>Play Console &rarr; <strong>Releases overview</strong> &mdash; the new release shows status <strong>"In review."</strong></li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="quick-reference">
+        <div class="section-label">8. Reference</div>
+        <h2>Driver vs Rider Quick Reference</h2>
+        <p>Everything that differs between the two apps in this flow, side by side.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Field</th><th>BahirdarDriver</th><th>BahirdarRide</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Project folder</td><td>C:\SVELT_APP\CityBird-Bahirdar\BahirdarDriver</td><td>C:\SVELT_APP\CityBird-Bahirdar\BahirdarRide</td></tr>
+              <tr><td>Keystore file</td><td>bahirdar-driver-upload.jks</td><td>keystore.jks</td></tr>
+              <tr><td>Keystore source</td><td>credentials\bahirdar-driver-upload.jks</td><td>credentials\android\keystore.jks</td></tr>
+              <tr><td>Store password</td><td>BahirdarDriver@2026</td><td>01259492296f768e8cdac8876a9e4540</td></tr>
+              <tr><td>Key alias</td><td>upload</td><td>9b2a40fd7f27272b4c43a6f83c9a9805</td></tr>
+              <tr><td>Key password</td><td>BahirdarDriver@2026</td><td>d8ee7d3b7ac130c245990e5a842a3c59</td></tr>
+              <tr><td>Credentials already saved locally</td><td>No &mdash; copy from credentials\ each time</td><td>Yes &mdash; in credentials.json at project root</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          Every command in Steps 1&ndash;6 is identical between the two apps &mdash; only the folder you <code>cd</code> into and the values from this table change.
+        </div>
+      </section>
+
+      <section class="doc-section" id="quota-reset">
+        <div class="section-label">9. Reference</div>
+        <h2>When Cloud Quota Resets</h2>
+        <p>Once the EAS free-tier quota resets for the month, skip the entire manual build path above. Run this per app instead, from the app root:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">npx</span> eas-cli build <span class="tok-flag">-p</span> android <span class="tok-flag">--profile</span> production <span class="tok-flag">--non-interactive</span> <span class="tok-flag">--no-wait</span> <span class="tok-flag">--auto-submit</span></code></pre>
+        <p>This queues a cloud build and auto-submits to the Play Store on completion &mdash; no local signing, no Gradle, no version-code bookkeeping by hand.</p>
+      </section>
+
+      <section class="doc-section" id="troubleshooting">
+        <div class="section-label">10. Reference</div>
+        <h2>Troubleshooting</h2>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Most Likely Cause &amp; Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Build is signed with the debug key</td><td><code>--clean</code> was run since the last release build, which resets <code>signingConfig</code> back to debug. Redo <a href="#signing">Step 2</a> before rebuilding.</td></tr>
+              <tr><td>versionCode already used</td><td><code>--clean</code> reset <code>versionCode</code> to 1, or the App bundle explorer number wasn't re-checked. Redo <a href="#version-code">Step 3</a> against the current highest across all tracks.</td></tr>
+              <tr><td>Commands fail or behave unexpectedly</td><td>Running in PowerShell or Git Bash instead of Command Prompt. Reopen a plain <code>cmd.exe</code> window and retry.</td></tr>
+              <tr><td><code>eas-cli submit</code> can't find the .aab or fails immediately</td><td>Submit was run from inside <code>android\</code>. It must run from the app root, as shown in <a href="#submit">Step 5</a>.</td></tr>
+              <tr><td>Gradle build fails signing the release variant</td><td>Wrong keystore file copied into <code>android\app\</code>, or a driver/rider keystore value pasted into the wrong app's <code>build.gradle</code>. Recheck against <a href="#quick-reference">Driver vs Rider Reference</a>.</td></tr>
+              <tr><td><code>eas build --local</code> fails on Android</td><td>Expected &mdash; this does not work on Windows for Android. Use the manual Gradle path on this page instead.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="notice-amber">
+          <strong>Full Background</strong>
+          For deeper troubleshooting and the reasoning behind this fallback path, see <code>DEPLOYMENT_WITHOUT_EAS_PAID.md</code> in the project root.
+        </div>
+      </section>
+
+      <section class="doc-section" id="cheatsheet">
+        <div class="section-label">Appendix</div>
+        <h2>Full Command Cheatsheet</h2>
+        <p>Every command from this page, back to back, for the <strong>Driver</strong> app. Swap the folder name and keystore lines for <strong>Rider</strong> per the <a href="#quick-reference">reference table</a> above.</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-comment">:: 1. Regenerate native project</span>
+<span class="tok-cmd">cd</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarDriver
+<span class="tok-cmd">npx</span> expo prebuild <span class="tok-flag">--platform</span> android <span class="tok-flag">--clean</span>
+
+<span class="tok-comment">:: 2. Copy release keystore, then edit android\app\build.gradle</span>
+<span class="tok-cmd">copy</span> credentials\bahirdar-driver-upload.jks android\app\bahirdar-driver-upload.jks
+
+<span class="tok-comment">:: 3. Bump versionCode in build.gradle by hand (check Play Console first)</span>
+
+<span class="tok-comment">:: 4. Build the signed .aab</span>
+<span class="tok-cmd">cd</span> android
+<span class="tok-cmd">set</span> <span class="tok-var">NODE_ENV</span>=<span class="tok-string">production</span>
+<span class="tok-cmd">gradlew.bat</span> bundleRelease
+<span class="tok-cmd">cd</span> ..
+
+<span class="tok-comment">:: 5. Auto-submit to the Play Store</span>
+<span class="tok-cmd">npx</span> eas-cli submit <span class="tok-flag">-p</span> android <span class="tok-flag">--path</span> android\app\build\outputs\bundle\release\app-release.aab
+
+<span class="tok-comment">:: 6. Verify in Play Console -> App bundle explorer / Releases overview</span></code></pre>
+
+        <div class="callout">
+          End of document: Taxi App (BahirdarDriver &amp; BahirdarRide) Play Store Auto-Submit | Gebeta Technology PLC | Mulewave | July 2026.
+        </div>
+
+        <a href="/" class="back-btn">&larr; Back to Portal</a>
+      </section>
+    </main>
+  </div>
+
+  <footer class="pro-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="footer-logo">gebeta<span>_docs</span></div>
+        <p class="footer-copyright">&copy; 2026 Gebeta Technology PLC. All rights reserved.</p>
+      </div>
+      <div class="footer-right">
+        <a href="https://www.gebetatech.com" target="_blank" class="footer-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          gebetatech.com
+        </a>
+        <a href="tel:091944444499" class="footer-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          091944444499
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <a class="support-chat" href="https://t.me/MikaET" target="_blank" rel="noopener" aria-label="Open Telegram chat with MikaET">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M21.94 4.66c.21-1.02-.76-1.86-1.72-1.49L2.96 9.82c-1.09.42-1.07 1.96.03 2.36l4.4 1.58 1.7 5.47c.32 1.04 1.68 1.3 2.34.45l2.45-3.15 4.76 3.5c.86.63 2.08.15 2.29-.9l3.01-14.47ZM8.12 12.83l9.75-6.01c.18-.11.37.14.22.29l-8.05 7.56-.31 3.1-1.61-4.94Zm10.28 5.34-4.52-3.33 6.84-6.42-2.32 10.75Z"/>
+    </svg>
+    Support Chat
+  </a>
+  <script>
+    const main = document.querySelector('.main');
+    const searchInput = document.querySelector('#doc-search');
+    const searchCount = document.querySelector('#search-count');
+    const searchResults = document.querySelector('#search-results');
+    const sidebarLinks = Array.from(document.querySelectorAll('.sidebar a[href^="#"]'));
+    const sections = Array.from(document.querySelectorAll('.doc-section'));
+
+    const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const trimSnippet = (value) => value.replace(/\s+/g, ' ').trim().slice(0, 130);
+
+    function closeSearchResults() {
+      searchResults.classList.remove('open');
+    }
+
+    function openSearchResults() {
+      if (searchResults.children.length) searchResults.classList.add('open');
+    }
+
+    function getSearchResultContext(mark) {
+      const section = mark.closest('.doc-section, .doc-hero');
+      const sectionTitle = section?.querySelector('h1, h2')?.textContent || 'Documentation';
+      const contextNode = mark.closest('p, li, td, th, h1, h2, h3, h4, .callout, code') || mark.parentElement;
+      return {
+        sectionTitle: sectionTitle.trim(),
+        snippet: trimSnippet(contextNode?.textContent || mark.textContent)
+      };
+    }
+
+    function activateSearchMatch(index) {
+      const mark = main.querySelector(`mark.search-highlight[data-search-index="${index}"]`);
+      if (!mark) return;
+
+      main.querySelectorAll('mark.active-match').forEach((active) => {
+        active.classList.remove('active-match');
+      });
+      mark.classList.add('active-match');
+      mark.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      setTimeout(setActiveSidebarLink, 450);
+    }
+
+    function renderSearchResults() {
+      const marks = Array.from(main.querySelectorAll('mark.search-highlight'));
+      searchResults.innerHTML = '';
+
+      if (!searchInput.value.trim()) {
+        closeSearchResults();
+        return;
+      }
+
+      if (!marks.length) {
+        const empty = document.createElement('div');
+        empty.className = 'search-empty';
+        empty.textContent = 'No results found';
+        searchResults.append(empty);
+        openSearchResults();
+        return;
+      }
+
+      marks.slice(0, 50).forEach((mark, index) => {
+        mark.dataset.searchIndex = index;
+        const context = getSearchResultContext(mark);
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'search-result';
+        button.setAttribute('role', 'option');
+        button.dataset.searchIndex = index;
+        button.innerHTML = `<span class="search-result-section"></span><span class="search-result-snippet"></span>`;
+        button.querySelector('.search-result-section').textContent = context.sectionTitle;
+        button.querySelector('.search-result-snippet').textContent = context.snippet;
+        searchResults.append(button);
+      });
+
+      if (marks.length > 50) {
+        const more = document.createElement('div');
+        more.className = 'search-empty';
+        more.textContent = `Showing first 50 of ${marks.length} matches`;
+        searchResults.append(more);
+      }
+
+      openSearchResults();
+    }
+
+    function clearSearchHighlights() {
+      main.querySelectorAll('mark.search-highlight').forEach((mark) => {
+        const text = document.createTextNode(mark.textContent);
+        mark.replaceWith(text);
+        text.parentNode.normalize();
+      });
+    }
+
+    function applySearchHighlights(query) {
+      clearSearchHighlights();
+
+      const trimmed = query.trim();
+      if (!trimmed) {
+        searchCount.textContent = '0 matches';
+        searchResults.innerHTML = '';
+        closeSearchResults();
+        return;
+      }
+
+      const regex = new RegExp(escapeRegExp(trimmed), 'gi');
+      const walker = document.createTreeWalker(main, NodeFilter.SHOW_TEXT, {
+        acceptNode(node) {
+          const parent = node.parentElement;
+          if (!parent || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+          if (parent.closest('script, style, button')) return NodeFilter.FILTER_REJECT;
+          regex.lastIndex = 0;
+          return regex.test(node.nodeValue) ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+        }
+      });
+
+      const matches = [];
+      let node;
+      while ((node = walker.nextNode())) matches.push(node);
+
+      let count = 0;
+      matches.forEach((textNode) => {
+        const fragment = document.createDocumentFragment();
+        const text = textNode.nodeValue;
+        let lastIndex = 0;
+        regex.lastIndex = 0;
+        text.replace(regex, (match, index) => {
+          if (index > lastIndex) fragment.append(document.createTextNode(text.slice(lastIndex, index)));
+          const mark = document.createElement('mark');
+          mark.className = 'search-highlight';
+          mark.textContent = match;
+          fragment.append(mark);
+          lastIndex = index + match.length;
+          count += 1;
+          return match;
+        });
+        if (lastIndex < text.length) fragment.append(document.createTextNode(text.slice(lastIndex)));
+        textNode.replaceWith(fragment);
+      });
+
+      searchCount.textContent = `${count} ${count === 1 ? 'match' : 'matches'}`;
+      renderSearchResults();
+    }
+
+    searchInput.addEventListener('input', (event) => {
+      applySearchHighlights(event.target.value);
+    });
+
+    searchInput.addEventListener('focus', () => {
+      if (searchInput.value.trim()) openSearchResults();
+    });
+
+    searchInput.addEventListener('keydown', (event) => {
+      if (event.key === 'Enter') {
+        const firstResult = searchResults.querySelector('.search-result');
+        if (firstResult) {
+          event.preventDefault();
+          activateSearchMatch(firstResult.dataset.searchIndex);
+        }
+      }
+
+      if (event.key === 'Escape') {
+        searchInput.value = '';
+        applySearchHighlights('');
+        searchInput.blur();
+      }
+    });
+
+    searchResults.addEventListener('mousedown', (event) => {
+      event.preventDefault();
+    });
+
+    searchResults.addEventListener('click', (event) => {
+      const result = event.target.closest('.search-result');
+      if (!result) return;
+      activateSearchMatch(result.dataset.searchIndex);
+    });
+
+    document.addEventListener('click', (event) => {
+      if (!event.target.closest('.topbar-search')) closeSearchResults();
+    });
+
+    document.querySelectorAll('pre.code-block').forEach((block) => {
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'code-copy';
+      button.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="13" height="13" rx="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg><span>Copy</span>';
+      button.setAttribute('aria-label', 'Copy code to clipboard');
+      block.append(button);
+
+      button.addEventListener('click', async () => {
+        const code = block.querySelector('code')?.textContent || '';
+        const label = button.querySelector('span');
+        try {
+          if (navigator.clipboard && window.isSecureContext) {
+            await navigator.clipboard.writeText(code);
+          } else {
+            const textarea = document.createElement('textarea');
+            textarea.value = code;
+            textarea.setAttribute('readonly', '');
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.append(textarea);
+            textarea.select();
+            document.execCommand('copy');
+            textarea.remove();
+          }
+          label.textContent = 'Copied';
+          button.classList.add('copied');
+          setTimeout(() => {
+            label.textContent = 'Copy';
+            button.classList.remove('copied');
+          }, 1400);
+        } catch {
+          label.textContent = 'Failed';
+          setTimeout(() => {
+            label.textContent = 'Copy';
+          }, 1400);
+        }
+      });
+    });
+
+    function setActiveSidebarLink() {
+      const markerY = 84;
+      const current = sections.find((section) => {
+        const rect = section.getBoundingClientRect();
+        return rect.top <= markerY && rect.bottom > markerY;
+      }) || sections.reduce((nearest, section) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= markerY) return section;
+        return nearest;
+      }, sections[0]);
+
+      if (!current) return;
+
+      sidebarLinks.forEach((link) => {
+        const isActive = link.getAttribute('href') === `#${current.id}`;
+        link.classList.toggle('active', isActive);
+        if (isActive && window.innerWidth > 860) {
+          link.scrollIntoView({ block: 'nearest' });
+        }
+      });
+    }
+
+    document.addEventListener('scroll', setActiveSidebarLink, { passive: true });
+    window.addEventListener('resize', setActiveSidebarLink);
+    setActiveSidebarLink();
+  </script>
+</body>
+</html>
