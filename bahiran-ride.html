@@ -991,6 +991,11 @@
           </table>
         </div>
         <p>To set this up fresh on a new project: enable the capability on the app's Bundle ID in the Apple Developer portal, add the values in the table above, then build the app again so the new native capability is actually included. Same note as Google &mdash; the feature already exists here; this is the checklist for bringing it to a different app.</p>
+        <ul class="doc-list link-list">
+          <li><a href="https://developer.apple.com/account" target="_blank" rel="noopener">Apple Developer Account</a> &mdash; membership status and program enrollment.</li>
+          <li><a href="https://developer.apple.com/account/resources/identifiers/list" target="_blank" rel="noopener">Certificates, Identifiers &amp; Profiles &rarr; Identifiers</a> &mdash; where the Bundle ID's Sign In with Apple capability is turned on.</li>
+          <li><a href="https://expo.dev/accounts/zmichaeleth/projects/BahirdarRide/builds" target="_blank" rel="noopener">EAS Build Dashboard (Rider App)</a> &mdash; where the rebuild after enabling the capability actually runs.</li>
+        </ul>
       </section>
 
       <section class="doc-section" id="rider-app">
@@ -1452,14 +1457,14 @@ ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
         <div class="table-wrap">
           <table>
             <thead>
-              <tr><th>Option</th><th>What It Is</th><th>Good Fit Because</th></tr>
+              <tr><th>Option</th><th>What It Is</th><th>Good Fit Because</th><th>Link</th></tr>
             </thead>
             <tbody>
-              <tr><td>Self-hosted <code>coturn</code> on a VPS</td><td>Free, open-source TURN server software, run on a small VPS (Hostinger, DigitalOcean, Vultr, Linode all work). Every VPS plan already comes with a dedicated static IP.</td><td>Matches how this platform already runs everything else (Redis, OSRM, PostgreSQL all self-hosted via Coolify) &mdash; cheapest option long-term, full control.</td></tr>
-              <tr><td>Twilio Network Traversal Service</td><td>Managed TURN/STUN, pay only for the data actually relayed, global server locations.</td><td>Zero server maintenance, scales automatically with call volume, good if call volume is unpredictable.</td></tr>
-              <tr><td>Xirsys</td><td>Managed WebRTC-specific TURN/STUN service with dedicated IP plans.</td><td>Purpose-built for voice/video calling products specifically.</td></tr>
-              <tr><td>Metered.ca</td><td>Managed TURN/STUN with a free tier.</td><td>Good for proving TURN actually fixes the "stuck connecting" problem before paying for anything.</td></tr>
-              <tr><td>Cloudflare Realtime (TURN)</td><td>Newer managed TURN offering from Cloudflare.</td><td>Simple to add if the domain is already on Cloudflare.</td></tr>
+              <tr><td>Self-hosted <code>coturn</code> on a VPS</td><td>Free, open-source TURN server software, run on a small VPS (Hostinger, DigitalOcean, Vultr, Linode all work). Every VPS plan already comes with a dedicated static IP.</td><td>Matches how this platform already runs everything else (Redis, OSRM, PostgreSQL all self-hosted via Coolify) &mdash; cheapest option long-term, full control.</td><td><a href="https://github.com/coturn/coturn" target="_blank" rel="noopener">coturn on GitHub</a></td></tr>
+              <tr><td>Twilio Network Traversal Service</td><td>Managed TURN/STUN, pay only for the data actually relayed, global server locations.</td><td>Zero server maintenance, scales automatically with call volume, good if call volume is unpredictable.</td><td><a href="https://www.twilio.com/docs/stun-turn" target="_blank" rel="noopener">Twilio STUN/TURN Docs</a></td></tr>
+              <tr><td>Xirsys</td><td>Managed WebRTC-specific TURN/STUN service with dedicated IP plans.</td><td>Purpose-built for voice/video calling products specifically.</td><td><a href="https://xirsys.com/" target="_blank" rel="noopener">xirsys.com</a></td></tr>
+              <tr><td>Metered.ca</td><td>Managed TURN/STUN with a free tier.</td><td>Good for proving TURN actually fixes the "stuck connecting" problem before paying for anything.</td><td><a href="https://www.metered.ca/tools/openrelay/" target="_blank" rel="noopener">metered.ca/tools/openrelay</a></td></tr>
+              <tr><td>Cloudflare Realtime (TURN)</td><td>Newer managed TURN offering from Cloudflare.</td><td>Simple to add if the domain is already on Cloudflare.</td><td><a href="https://developers.cloudflare.com/realtime/turn/" target="_blank" rel="noopener">Cloudflare Realtime Docs</a></td></tr>
             </tbody>
           </table>
         </div>
