@@ -1381,16 +1381,60 @@ ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
         <div class="section-label">12. SMS & Push Notifications</div>
         <h2>Messaging Infrastructure</h2>
         <h3>SMS Provider - Afro Message</h3>
-        <p>Afro Message (afromessage.com) is the SMS API used for OTP delivery. It routes through Ethiopian carriers such as Ethio Telecom and Safaricom Ethiopia for reliable local delivery, which is preferred over global providers with unreliable routes into Ethiopia.</p>
+        <p>Afro Message (<a href="https://afromessage.com/" target="_blank" rel="noopener">afromessage.com</a>) is the SMS API used for OTP delivery and every other outgoing SMS on the platform. It routes through Ethiopian carriers such as Ethio Telecom and Safaricom Ethiopia for reliable local delivery, which is preferred over global providers with unreliable routes into Ethiopia.</p>
         <ul class="doc-list">
-          <li>OTP length: 6 digits.</li>
-          <li>OTP expiry: 5 minutes, stored as TTL in Redis rather than PostgreSQL.</li>
-          <li>Max resend attempts: 3 per 10-minute window, rate limited to prevent abuse.</li>
+          <li><strong>OTP length: 4 digits</strong> (e.g. <code>1234</code>) &mdash; generated with a cryptographically secure random number, not a simple counter.</li>
+          <li><strong>OTP expiry: 10 minutes.</strong> Stored in the <strong>PostgreSQL</strong> <code>otp_codes</code> table (not Redis &mdash; Redis on this platform is reserved for driver location/matching, never for OTPs).</li>
+          <li><strong>Resend cooldown: 60 seconds</strong> minimum gap between two OTP sends to the same number, on top of the 3-per-10-minute limit below.</li>
+          <li><strong>Rate limit: 3 OTP sends per 10-minute window</strong> per phone number, to prevent abuse.</li>
           <li>Delivery target: under 10 seconds to Ethiopian numbers.</li>
         </ul>
 
-        <h3>Firebase Cloud Messaging</h3>
-        <p>FCM handles all push notifications for both Android apps.</p>
+        <h4>How Sending Actually Works</h4>
+        <p>The backend calls Afro Message's REST API directly with the API key, a sender name the recipient sees (currently "BAHIRDAR"), the destination number, and the message text. Afro Message replies with a success/failure acknowledgement and a message ID used for tracking. No SDK is involved &mdash; it's a plain authenticated HTTP call.</p>
+
+        <h4>Every Message Type Sent, Not Just OTP</h4>
+        <p>The same SMS system also sends 8 other message types, all through one shared delivery + logging path:</p>
+        <ul class="doc-list">
+          <li><strong>OTP</strong> &mdash; phone login/registration codes.</li>
+          <li><strong>Trip receipt</strong> &mdash; sent to the rider when a trip completes (pickup, dropoff, total fare).</li>
+          <li><strong>Trip assignment</strong> &mdash; used by the call-center booking flow, with the assigned driver's car and ETA.</li>
+          <li><strong>Driver approval</strong> / <strong>Driver suspension</strong> &mdash; account status changes made from the Admin Panel.</li>
+          <li><strong>Driver registration reminder</strong> &mdash; nudges a driver who started but didn't finish signup.</li>
+          <li><strong>Rider suspension</strong> / <strong>Rider welcome back</strong> &mdash; same idea, rider side.</li>
+          <li><strong>Custom admin</strong> &mdash; a free-text message an admin can send to any one phone number.</li>
+        </ul>
+
+        <h4>Every Attempt Is Logged, Not Just Successes</h4>
+        <p>Every SMS attempt &mdash; sent, failed, or skipped (because Afro Message isn't configured) &mdash; is recorded in the <code>platform_sms_logs</code> table. This is what powers the "SMS History" list on a rider or driver's detail page in the Admin Panel, so support staff can see exactly what was sent to a given phone number and whether it actually went through.</p>
+
+        <h4>Dev/Local Fallback &mdash; No API Key Needed to Test</h4>
+        <p>When <code>AFROMESSAGE_API_KEY</code> is left blank (the default for local development), no real SMS is sent. Instead, the OTP is printed straight to the server console, and the fixed code <code>1234</code> is <strong>always</strong> accepted as a universal dev bypass, on any phone number. Every skipped-because-unconfigured attempt is still logged the same as a real one, so the Admin Panel's SMS History looks the same in dev and production.</p>
+
+        <h4>Developer Setup &mdash; What's Needed</h4>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Where</th><th>What Lives There</th><th>Why</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Backend <code>.env</code></td><td><code>AFROMESSAGE_API_KEY</code></td><td>Blank = dev fallback mode (console + <code>1234</code>). Set = real SMS sending turns on.</td></tr>
+              <tr><td>Backend <code>.env</code></td><td><code>AFROMESSAGE_IDENTIFIER</code></td><td>The sender name shown to the recipient (defaults to "BAHIRDAR").</td></tr>
+              <tr><td>Backend <code>.env</code></td><td><code>AFROMESSAGE_FROM</code></td><td>Optional &mdash; only needed if the Afro Message account has more than one registered sender identifier.</td></tr>
+              <tr><td>Backend <code>.env</code></td><td><code>AFROMESSAGE_API_URL</code></td><td>Defaults to Afro Message's real endpoint already &mdash; only override for testing against something else.</td></tr>
+              <tr><td>Backend service</td><td><code>sms.service.ts</code></td><td>Builds and sends every SMS type listed above, and writes the <code>platform_sms_logs</code> row for each attempt.</td></tr>
+              <tr><td>Backend service</td><td><code>auth.service.ts</code></td><td>Generates the 4-digit OTP, sets its 10-minute expiry, and enforces the 60s/3-per-10min limits.</td></tr>
+              <tr><td>Backend repository</td><td><code>otp.repository.ts</code></td><td>Reads/writes the <code>otp_codes</code> table itself.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Push Notifications &mdash; Two Paths, Not Just FCM</h3>
+        <p>Push notifications actually run through <strong>two different systems</strong>, chosen by how time-critical the alert is, and they work on <strong>both Android and iOS</strong> for both apps, not Android-only.</p>
+        <ul class="doc-list">
+          <li><strong>Firebase Cloud Messaging (FCM)</strong> &mdash; a queued batch sender, used for most notifications (trip completed, driver approved/rejected, account status changes, admin broadcasts). These go through a background worker job, not sent instantly one-by-one.</li>
+          <li><strong>Expo Push Notifications</strong> &mdash; a separate, direct (non-queued) path used only where a delay is unacceptable: a new trip offer reaching a driver whose app is backgrounded or closed, and an incoming in-app voice call ringing on a backgrounded/closed app. Both skip the FCM queue entirely and go straight out for speed.</li>
+        </ul>
         <h4>Rider Notifications</h4>
         <ul class="doc-list">
           <li>Driver assigned and on the way.</li>
