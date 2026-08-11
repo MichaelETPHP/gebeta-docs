@@ -51,20 +51,19 @@ Copy the keystore into place:
 copy credentials\bahirdar-driver-upload.jks android\app\bahirdar-driver-upload.jks
 ```
 
-**Rider app** (keystore + passwords already saved in `credentials.json` at
-the project root — no need to re-download via `eas-cli credentials`):
+**Rider app** — confirmed working (Play accepted a build signed with this):
 ```gradle
 release {
-    storeFile file('keystore.jks')
-    storePassword '01259492296f768e8cdac8876a9e4540'
-    keyAlias '9b2a40fd7f27272b4c43a6f83c9a9805'
-    keyPassword 'd8ee7d3b7ac130c245990e5a842a3c59'
+    storeFile file('upload-keystore.jks')
+    storePassword 'b75ca750a032328b17ea88ef81a8dc39'
+    keyAlias '93a1b4298051fc67be0c9c262cc63e3c'
+    keyPassword 'f00340e57a22b1ae285bfcc1f008a5bb'
 }
 ```
-Copy the keystore into place:
-```cmd
-copy credentials\android\keystore.jks android\app\keystore.jks
-```
+The matching `.jks` file needs to be at `android\app\upload-keystore.jks`.
+(Note: `credentials.json` at the project root points to a *different* local
+keystore — `credentials/android/keystore.jks` — but that one has not been
+proven to actually match Play's registered key. Use the block above.)
 
 Then, for either app, in `buildTypes { release { ... } }` change:
 ```gradle

@@ -345,6 +345,25 @@
 
     .doc-list li { margin-bottom: 8px; }
 
+    .doc-section a:not(.back-btn),
+    .doc-hero a:not(.back-btn) {
+      color: var(--black);
+      text-decoration: underline;
+      text-decoration-color: var(--gray-300);
+      text-underline-offset: 2px;
+      transition: text-decoration-color 0.15s var(--ease-out);
+    }
+
+    .doc-section a:not(.back-btn):hover,
+    .doc-hero a:not(.back-btn):hover {
+      text-decoration-color: var(--black);
+    }
+
+    .link-list a {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+    }
+
     .table-wrap {
       overflow-x: auto;
       margin: 22px 0 28px;
@@ -630,6 +649,7 @@
       </div>
       <div class="sidebar-group">
         <span class="sidebar-group-label">Product</span>
+        <a href="#authentication">Sign-In Methods</a>
         <a href="#rider-app">Rider App</a>
         <a href="#driver-app">Driver App</a>
         <a href="#admin-panel">Admin Panel</a>
@@ -641,6 +661,7 @@
         <a href="#matching">Matching Engine</a>
         <a href="#realtime">Real-Time</a>
         <a href="#deployment">Deployment</a>
+        <a href="#playstore-submit">Play Store Manual Submit</a>
         <a href="#website-deployment">Website Deployment</a>
       </div>
       <div class="sidebar-group">
@@ -648,6 +669,7 @@
         <a href="#fares">Fares</a>
         <a href="#performance">Performance</a>
         <a href="#notifications">Notifications</a>
+        <a href="#known-issues">Known Issues &amp; Fixes</a>
         <a href="#decisions">Decisions</a>
       </div>
     </nav>
@@ -657,7 +679,7 @@
         <a href="/" class="back-btn top-back">&larr; Back to Portal</a>
         <div class="doc-hero-tag">Technical & Business Documentation</div>
         <h1>Bahiran Ride Platform Documentation</h1>
-        <p>City-exclusive ride-hailing platform documentation for Bahir Dar, Ethiopia. This page combines product, development, business, operations, and infrastructure references for the full platform.</p>
+        <p>City-exclusive ride-hailing platform documentation for Bahir Dar, Ethiopia. One page for the whole application journey &mdash; business model, every sign-in method, the rider/driver/admin flows, deployment (including the manual Play Store fallback), and a running log of real bugs found and fixed.</p>
 
         <div class="notice-red">
           <strong>Changeable Business Values</strong>
@@ -687,7 +709,7 @@
           </div>
           <div class="meta-item">
             <span class="meta-label">Document Date</span>
-            <strong class="meta-value">June 2026</strong>
+            <strong class="meta-value">August 2026</strong>
           </div>
           <div class="meta-item">
             <span class="meta-label">Target Market</span>
@@ -861,19 +883,120 @@
         <p>GIST indexes are placed on all PostGIS geometry columns for fast spatial lookups. The most critical index is on driver_locations.location, allowing the nearest-driver query to scan geometrically relevant rows rather than the entire table. At 200 online drivers, this query executes in under 5ms.</p>
       </section>
 
-      <section class="doc-section" id="rider-app">
-        <div class="section-label">4. Rider App Workflow</div>
-        <h2>Complete Passenger Experience</h2>
+      <section class="doc-section" id="authentication">
+        <div class="section-label">4. Sign-In Methods</div>
+        <h2>How Riders and Drivers Log In</h2>
+        <p>The Rider app offers three ways to sign in. The Driver app offers one. All three issue the exact same kind of session at the end &mdash; a JWT access token plus a refresh token &mdash; so nothing downstream in the app needs to know or care which method a person used.</p>
 
-        <h3>Onboarding</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Method</th><th>Where</th><th>Who It's For</th><th>Matched By</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Phone Number + OTP</td><td>Rider &amp; Driver apps</td><td>Everyone &mdash; the default, always available</td><td>Phone number</td></tr>
+              <tr><td>Google Sign-In</td><td>Rider app only</td><td>Riders who prefer one-tap Google login</td><td><code>google_id</code> (Google's stable account ID)</td></tr>
+              <tr><td>Sign in with Apple</td><td>Rider app, iOS only</td><td>iPhone riders &mdash; required by Apple</td><td><code>apple_id</code> (Apple's stable account ID)</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Phone Number + OTP (Default)</h3>
         <ul class="doc-list">
           <li>App opens with a Bahirdar branded splash screen.</li>
-          <li>Rider enters phone number and receives OTP through Afro Message SMS.</li>
-          <li>Rider enters 6-digit OTP, verified against Redis-stored OTP.</li>
+          <li>Rider or driver enters their phone number and receives a 6-digit OTP through Afro Message SMS.</li>
+          <li>OTP is checked against the code stored in Redis (5-minute expiry).</li>
           <li>JWT access token and refresh token are issued on success.</li>
-          <li>Rider completes profile setup with name and optional profile photo.</li>
-          <li>Home screen loads with Gebeta Map centered on Bahir Dar.</li>
+          <li>New accounts finish a short profile setup (name, optional photo) before reaching the home screen.</li>
         </ul>
+
+        <h3>Google Sign-In (Rider App)</h3>
+        <p>One tap, no phone number needed. The app never gets to simply say "trust me, this is a Google account" &mdash; the token it hands the backend is independently checked against Google's own servers before anything is trusted.</p>
+        <ul class="doc-list">
+          <li>Rider taps the Google button; the native Google account picker opens.</li>
+          <li>Google returns a signed ID token to the app.</li>
+          <li>The app sends that token to the backend, which re-verifies it directly with Google (never trusts the app's word for who signed in).</li>
+          <li>The backend looks the person up by <code>google_id</code> &mdash; a fixed ID from Google that never changes, unlike an email address.</li>
+          <li>If this Google account already has a Bahirdar account (matched by verified email), it's linked instead of creating a duplicate.</li>
+          <li>If it's a first-time sign-in with no match, a new rider account is created with no phone number attached.</li>
+        </ul>
+
+        <h4>Developer Setup &mdash; What's Needed</h4>
+        <ul class="doc-list">
+          <li>A Google Cloud project (this platform already uses one named <strong>bahirdar-play</strong>).</li>
+          <li>Two OAuth Client IDs created inside that project: a <strong>Web application</strong> Client ID (used to verify tokens on the backend) and an <strong>iOS</strong> Client ID (needed for the native Google sign-in screen to open on iPhone).</li>
+          <li>Both IDs saved as environment values &mdash; the Web Client ID on the backend, both on the Rider app.</li>
+        </ul>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Where</th><th>What Lives There</th><th>Why</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Backend <code>.env</code></td><td><code>GOOGLE_OAUTH_WEB_CLIENT_ID</code></td><td>The backend checks every sign-in token against this ID before trusting it.</td></tr>
+              <tr><td>Rider app config</td><td><code>EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID</code>, <code>EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID</code></td><td>Tells the Google sign-in screen which app is asking, per platform.</td></tr>
+              <tr><td>Backend service</td><td><code>googleAuth.service.ts</code></td><td>Talks to Google's servers to confirm a sign-in token is real and unexpired.</td></tr>
+              <tr><td>Backend service</td><td><code>auth.service.ts</code> &mdash; <code>googleLogin()</code></td><td>Finds the matching account by <code>google_id</code>, or creates a new one.</td></tr>
+              <tr><td>Backend repository</td><td><code>user.repository.ts</code></td><td>Reads/writes the <code>google_id</code> link on the account.</td></tr>
+              <tr><td>Database migration</td><td><code>040_google_auth.sql</code></td><td>Added the <code>google_id</code> column that makes the account link possible.</td></tr>
+              <tr><td>Rider app</td><td><code>src/lib/googleAuth.js</code></td><td>Opens the native Google account picker and hands the resulting token to the backend.</td></tr>
+              <tr><td>Rider app</td><td><code>src/screens/auth/PhoneEntryScreen.js</code></td><td>The actual Google button on the login screen.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>To set this up fresh on a new project: create (or reuse) the Google Cloud project, generate the two Client IDs, drop them into the four places in the table above, and make sure the Google sign-in package is installed on the Rider app. No new code is needed for this platform &mdash; it's already fully wired; this checklist is what a developer would repeat to bring the same feature to a different app.</p>
+        <ul class="doc-list link-list">
+          <li><a href="https://console.cloud.google.com/" target="_blank" rel="noopener">Google Cloud Console</a> &mdash; the project itself lives here.</li>
+          <li><a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">APIs &amp; Services &rarr; Credentials</a> &mdash; where the OAuth Client IDs are created and viewed.</li>
+          <li><a href="https://console.cloud.google.com/apis/credentials/consent" target="_blank" rel="noopener">OAuth Consent Screen</a> &mdash; the app name/logo riders see on the Google sign-in picker.</li>
+        </ul>
+
+        <h3>Sign in with Apple (Rider App, iOS Only)</h3>
+        <p>Works the same way as Google Sign-In &mdash; same verify-then-match pattern, keyed on <code>apple_id</code> instead of <code>google_id</code>.</p>
+        <ul class="doc-list">
+          <li>Only shows on iOS &mdash; Apple Sign-In does not exist on Android, so the button hides itself there automatically.</li>
+          <li>Apple returns a signed identity token; the backend re-verifies it against Apple's own public keys before trusting it.</li>
+          <li>Matched by <code>apple_id</code> first, then by verified email if this is the account's first time linking.</li>
+        </ul>
+        <div class="notice-amber">
+          <strong>Why This Exists</strong>
+          Apple's App Store rule 4.8 requires that any app offering a third-party social login on iOS (Google, Facebook, etc.) must also offer Sign in with Apple. The Rider app already had Google Sign-In, so this was a requirement for App Store approval &mdash; not an optional extra.
+        </div>
+        <div class="notice-amber">
+          <strong>Two Apple Quirks Handled Automatically</strong>
+          Apple only shares the person's <strong>name once</strong> &mdash; on that Apple ID's very first authorization ever on this app. It is saved immediately, because it is never sent again on later logins. Apple can also give a <strong>private relay email</strong> (like <code>abc123@privaterelay.appleid.com</code>) instead of the real one &mdash; this is normal and is stored as the account's email as-is.
+        </div>
+
+        <h4>Developer Setup &mdash; What's Needed</h4>
+        <ul class="doc-list">
+          <li>A paid <strong>Apple Developer Program</strong> membership (this is an annual account-level requirement, not something per-app).</li>
+          <li>The app's Bundle ID (<code>com.bahirdar.ride</code>) with the <strong>Sign In with Apple</strong> capability turned on in the Apple Developer portal.</li>
+          <li>Because this adds a real native capability to the app (not just a setting), it needs a fresh app build afterward &mdash; a plain code/JS update is not enough on its own.</li>
+        </ul>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Where</th><th>What Lives There</th><th>Why</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Backend <code>.env</code></td><td><code>APPLE_SIGNIN_BUNDLE_ID</code></td><td>The backend checks every sign-in token against this Bundle ID before trusting it.</td></tr>
+              <tr><td>Rider app config</td><td><code>usesAppleSignIn: true</code> (iOS config)</td><td>Tells the app build process to include Apple's sign-in capability.</td></tr>
+              <tr><td>Backend service</td><td><code>appleAuth.service.ts</code></td><td>Checks every sign-in token against Apple's own public keys to confirm it's real.</td></tr>
+              <tr><td>Backend service</td><td><code>auth.service.ts</code> &mdash; <code>appleLogin()</code></td><td>Finds the matching account by <code>apple_id</code>, or creates a new one.</td></tr>
+              <tr><td>Backend repository</td><td><code>user.repository.ts</code></td><td>Reads/writes the <code>apple_id</code> link on the account.</td></tr>
+              <tr><td>Database migration</td><td><code>043_apple_auth.sql</code></td><td>Added the <code>apple_id</code> column that makes the account link possible.</td></tr>
+              <tr><td>Rider app</td><td><code>src/lib/appleAuth.js</code></td><td>Opens Apple's native sign-in sheet and hands the resulting token to the backend.</td></tr>
+              <tr><td>Rider app</td><td><code>src/screens/auth/PhoneEntryScreen.js</code></td><td>The actual Apple button on the login screen; hides itself automatically on Android.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>To set this up fresh on a new project: enable the capability on the app's Bundle ID in the Apple Developer portal, add the values in the table above, then build the app again so the new native capability is actually included. Same note as Google &mdash; the feature already exists here; this is the checklist for bringing it to a different app.</p>
+      </section>
+
+      <section class="doc-section" id="rider-app">
+        <div class="section-label">5. Rider App Workflow</div>
+        <h2>Complete Passenger Experience</h2>
+        <p>Once signed in (see <a href="#authentication">Sign-In Methods</a> above), the rider lands on the home screen with Gebeta Map centered on Bahir Dar and moves through the flow below.</p>
 
         <h3>Booking a Ride</h3>
         <ul class="doc-list">
@@ -938,7 +1061,7 @@
       </section>
 
       <section class="doc-section" id="driver-app">
-        <div class="section-label">5. Driver App Workflow</div>
+        <div class="section-label">6. Driver App Workflow</div>
         <h2>Driver Operations Lifecycle</h2>
 
         <h3>Driver Registration and Verification</h3>
@@ -993,7 +1116,7 @@
       </section>
 
       <section class="doc-section" id="matching">
-        <div class="section-label">6. Ride Matching Engine</div>
+        <div class="section-label">7. Ride Matching Engine</div>
         <h2>How Matching Works</h2>
         <p>The matching engine runs on the backend as soon as a ride_request record is created.</p>
         <ul class="doc-list">
@@ -1043,7 +1166,7 @@ LIMIT 10;</code></pre>
       </section>
 
       <section class="doc-section" id="fares">
-        <div class="section-label">7. Fare & Commission Calculation</div>
+        <div class="section-label">8. Fare & Commission Calculation</div>
         <h2>Fare Formula</h2>
         <p>The final fare is calculated at trip completion using actual measured trip data rather than only the pre-trip estimate.</p>
         <pre class="code-block"><code>Final Fare = Base Fare + (Distance km x Per-km Rate) + (Duration min x Per-minute Rate)
@@ -1103,7 +1226,7 @@ If Surge Active: Final Fare = Final Fare x Surge Multiplier</code></pre>
       </section>
 
       <section class="doc-section" id="admin-panel">
-        <div class="section-label">8. Admin Panel</div>
+        <div class="section-label">9. Admin Panel</div>
         <h2>Platform Management</h2>
         <p>The Admin Panel is a React + Vite web application used exclusively by the platform owner. It accesses the same backend API as the mobile apps through admin-authenticated JWT endpoints and acts as the control center for platform operations.</p>
 
@@ -1150,7 +1273,7 @@ If Surge Active: Final Fare = Final Fare x Surge Multiplier</code></pre>
       </section>
 
       <section class="doc-section" id="realtime">
-        <div class="section-label">9. Real-Time Architecture</div>
+        <div class="section-label">10. Real-Time Architecture</div>
         <h2>Socket.io Event Flows</h2>
         <h3>Driver Location Streaming</h3>
         <ul class="doc-list">
@@ -1185,7 +1308,7 @@ ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
       </section>
 
       <section class="doc-section" id="performance">
-        <div class="section-label">10. Performance & Latency</div>
+        <div class="section-label">11. Performance & Latency</div>
         <h2>Targets</h2>
         <h3>API Response Times</h3>
         <div class="table-wrap">
@@ -1250,7 +1373,7 @@ ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
       </section>
 
       <section class="doc-section" id="notifications">
-        <div class="section-label">11. SMS & Push Notifications</div>
+        <div class="section-label">12. SMS & Push Notifications</div>
         <h2>Messaging Infrastructure</h2>
         <h3>SMS Provider - Afro Message</h3>
         <p>Afro Message (afromessage.com) is the SMS API used for OTP delivery. It routes through Ethiopian carriers such as Ethio Telecom and Safaricom Ethiopia for reliable local delivery, which is preferred over global providers with unreliable routes into Ethiopia.</p>
@@ -1282,10 +1405,71 @@ ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
 
         <h4>Admin Broadcast</h4>
         <p>The owner can send custom push notifications to all riders, all drivers, or specific users from the Admin Panel.</p>
+
+        <h3>Admin Live Alerts &mdash; New Trip Requests</h3>
+        <p>The Admin Panel shows a live alert card the moment any rider requests a trip, with no page refresh needed.</p>
+        <ul class="doc-list">
+          <li>Every admin browser tab joins a shared Socket.io <code>admin</code> room automatically on login, based on the account's role in the JWT.</li>
+          <li>When a trip is created, the backend broadcasts <code>admin:trip:requested</code> to that room with the rider's name, phone, avatar, pickup, dropoff, and estimated fare.</li>
+          <li>The card appears in the corner with a ring sound, the rider's photo and phone number, and an expandable details toggle for pickup/dropoff.</li>
+          <li>It stays on screen for 2 minutes and repeats the ring every 15 seconds so a new request is never missed in a busy dashboard.</li>
+          <li>"View Trip" deep-links straight into that trip's detail panel on the Trips page &mdash; not just the general trip list.</li>
+        </ul>
+
+        <h3>In-App Voice Calling</h3>
+        <p>Riders and drivers can call each other from inside the app during an active trip, without exposing either person's real phone number. Admins can also call a rider from the Trip Details page in the Admin Panel &mdash; on any trip, including completed ones &mdash; which is the fallback for riders who signed up with Google or Apple and have no phone number on record at all.</p>
+        <ul class="doc-list">
+          <li>Built on WebRTC (audio-only) with call setup relayed through Socket.io, not a phone carrier.</li>
+          <li>Signaling messages route through each person's private <code>user:&#123;id&#125;</code> socket room, so a call still connects correctly even if one side briefly reconnects mid-trip.</li>
+          <li>A 45-second watchdog ends the call attempt automatically if the other side never answers.</li>
+          <li>Real native call UI on both platforms &mdash; CallKit on iOS, ConnectionService on Android &mdash; so an incoming in-app call rings and can be answered like a normal phone call, including from the lock screen.</li>
+          <li>Rider &harr; driver calling is only offered while a trip is active. Admin &rarr; rider support calling is the one exception and works on any trip status.</li>
+        </ul>
+
+        <h4>STUN and TURN, in Plain Terms</h4>
+        <p>Two things have to happen for an in-app call to actually carry sound: the two devices need to find each other on the internet, and then audio needs an actual path to travel between them. STUN and TURN are two different tools for that second part.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Term</th><th>What It Actually Does</th><th>When It's Used</th></tr>
+            </thead>
+            <tbody>
+              <tr><td><strong>STUN</strong></td><td>Helps each device discover its own real public address on the internet, so the two devices can try to connect to each other <strong>directly</strong> &mdash; audio flows phone-to-phone (or phone-to-browser), never touching our own servers.</td><td>Works most of the time. This is the only thing set up on this platform today.</td></tr>
+              <tr><td><strong>TURN</strong></td><td>A relay server both sides send audio to when a direct connection isn't possible (common on strict office Wi-Fi, or when a phone's mobile-data network blocks direct connections). Audio now flows through this server instead of directly.</td><td>Not set up yet on this platform &mdash; this is the current gap. Its absence is the most likely reason a call can get stuck on "Connecting" for some device/network combinations.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="notice-amber">
+          <strong>Why This Matters Right Now</strong>
+          Admin calling adds a new combination that didn't exist before: a browser (Admin Panel) on one network calling a phone on mobile data on a completely different network. That specific combination is exactly the case STUN alone struggles with. A working TURN server is the real fix, not a code change.
+        </div>
+
+        <h4>About Voice Calling &mdash; በአማርኛ (In Amharic)</h4>
+        <p lang="am">በመተግበሪያው ውስጥ ያለው የድምጽ ጥሪ፣ አሽከርካሪውና ተሳፋሪው የስልክ ቁጥራቸውን ሳይለዋወጡ በቀጥታ በኢንተርኔት አማካኝነት እንዲነጋገሩ ያስችላቸዋል። ጥሪው የሚሰራው WebRTC በተባለ ቴክኖሎጂ ሲሆን፣ ሁለት መንገዶች አሉት፦ አንደኛው ስልኮቹ በቀጥታ እንዲገናኙ የሚረዳው STUN ነው፤ ብዙ ጊዜ ይሰራል። ሁለተኛው ደግሞ ቀጥታ ግንኙነት ሳይሳካ ሲቀር ድምጹን በማስተላለፍ የሚረዳው TURN አገልጋይ ነው፤ ይህ ግን በአሁኑ ጊዜ በዚህ መተግበሪያ ላይ ገና አልተዘጋጀም። ተሳፋሪው በስልክ ቁጥር ፈንታ በGoogle ወይም በApple ብቻ የተመዘገበ ከሆነ፣ አድሚን ራሱ ከአስተዳደር ገጽ (Admin Panel) በዚሁ የጥሪ ስርዓት ሊደውልለት ይችላል &mdash; ይህም የደንበኛ አገልግሎት (customer support) ጥሪ አማራጭ ነው።</p>
+
+        <h4>TURN Vendor Options &mdash; Dedicated IP for VoIP Relay</h4>
+        <p>A TURN server needs a stable, dedicated public IP address to work reliably &mdash; a shared or rotating IP is not suitable. There are two general paths: run the TURN server ourselves, or pay a service that already runs one.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Option</th><th>What It Is</th><th>Good Fit Because</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Self-hosted <code>coturn</code> on a VPS</td><td>Free, open-source TURN server software, run on a small VPS (Hostinger, DigitalOcean, Vultr, Linode all work). Every VPS plan already comes with a dedicated static IP.</td><td>Matches how this platform already runs everything else (Redis, OSRM, PostgreSQL all self-hosted via Coolify) &mdash; cheapest option long-term, full control.</td></tr>
+              <tr><td>Twilio Network Traversal Service</td><td>Managed TURN/STUN, pay only for the data actually relayed, global server locations.</td><td>Zero server maintenance, scales automatically with call volume, good if call volume is unpredictable.</td></tr>
+              <tr><td>Xirsys</td><td>Managed WebRTC-specific TURN/STUN service with dedicated IP plans.</td><td>Purpose-built for voice/video calling products specifically.</td></tr>
+              <tr><td>Metered.ca</td><td>Managed TURN/STUN with a free tier.</td><td>Good for proving TURN actually fixes the "stuck connecting" problem before paying for anything.</td></tr>
+              <tr><td>Cloudflare Realtime (TURN)</td><td>Newer managed TURN offering from Cloudflare.</td><td>Simple to add if the domain is already on Cloudflare.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="callout">
+          Recommended path: self-hosted <code>coturn</code> on a small VPS, since it keeps the same fully self-hosted pattern already used everywhere else on this platform and a dedicated IP is standard on any VPS plan at no extra cost. A managed service like Metered.ca's free tier is the faster way to confirm TURN actually solves the connection issue before committing to that setup.
+        </div>
       </section>
 
       <section class="doc-section" id="deployment">
-        <div class="section-label">12. Deployment Infrastructure</div>
+        <div class="section-label">13. Deployment Infrastructure</div>
         <h2>Server Stack</h2>
         <p>All backend services run on Hostinger VPS instances managed through Coolify. Traefik handles SSL and routing. The architecture is fully self-hosted with no external PaaS dependency.</p>
         <div class="table-wrap">
@@ -1337,8 +1521,99 @@ ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
         </ul>
       </section>
 
+      <section class="doc-section" id="playstore-submit">
+        <div class="section-label">13.1 Manual Play Store Submit</div>
+        <h2>Play Store Manual Build &amp; Submit (EAS Quota Fallback)</h2>
+        <p>Both <strong>BahirdarDriver</strong> and <strong>BahirdarRide</strong> normally ship to the Play Store through EAS Build's free-tier cloud queue, which auto-submits on completion. That free tier has a monthly build quota. Once it runs out mid-month, this manual fallback builds the signed Android App Bundle locally with Gradle, then hands it to <code>eas-cli</code> for the actual Play Store upload. The two apps share the exact same process &mdash; only the project folder and keystore details differ.</p>
+
+        <div class="notice-red">
+          <strong>Shell Requirement</strong>
+          Every command below must run in <strong>Command Prompt (cmd.exe)</strong>, not PowerShell. <code>eas build --local</code> does not work on Windows for Android, which is why this manual path exists.
+        </div>
+
+        <h3>Check Quota First</h3>
+        <p>Confirm the EAS free-tier quota is actually the blocker before doing a manual build &mdash; it resets monthly at <strong>expo.dev/accounts/zmichaeleth/settings/billing</strong>. If it already reset, skip straight to the one-line cloud command in <a href="#quota-reset-cmd">Cloud Quota Resets</a> below.</p>
+
+        <h3><span class="step-badge">1</span>Regenerate the Native Project</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarDriver
+<span class="tok-comment">:: or BahirdarRide</span>
+<span class="tok-cmd">npx</span> expo prebuild <span class="tok-flag">--platform</span> android <span class="tok-flag">--clean</span></code></pre>
+        <div class="notice-amber">
+          <strong>--clean Wipes Signing</strong>
+          <code>--clean</code> regenerates the entire <code>android\</code> folder, resetting <code>versionCode</code> to 1 and signing back to the debug key. Steps 2 and 3 must be redone every time. If nothing native changed since the last build, drop <code>--clean</code> and skip to Step 3.
+        </div>
+
+        <h3><span class="step-badge">2</span>Wire Up Real Release Signing</h3>
+        <p>In <code>android\app\build.gradle</code>, add a <code>release</code> block next to <code>debug</code> in <code>signingConfigs</code>:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Field</th><th>BahirdarDriver</th><th>BahirdarRide</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Keystore file</td><td>bahirdar-driver-upload.jks</td><td>upload-keystore.jks</td></tr>
+              <tr><td>Copy destination</td><td>android\app\bahirdar-driver-upload.jks</td><td>android\app\upload-keystore.jks</td></tr>
+              <tr><td>Store password</td><td>BahirdarDriver@2026</td><td>b75ca750a032328b17ea88ef81a8dc39</td></tr>
+              <tr><td>Key alias</td><td>upload</td><td>93a1b4298051fc67be0c9c262cc63e3c</td></tr>
+              <tr><td>Key password</td><td>BahirdarDriver@2026</td><td>f00340e57a22b1ae285bfcc1f008a5bb</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Copy the keystore into place (Driver shown, swap paths for Rider):</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">copy</span> credentials\bahirdar-driver-upload.jks android\app\bahirdar-driver-upload.jks</code></pre>
+        <p>Then in <code>buildTypes { release { ... } }</code>, point it at the new config:</p>
+        <pre class="code-block"><span class="code-lang">gradle</span><code><span class="tok-key">signingConfig</span> signingConfigs.release</code></pre>
+        <div class="notice-amber">
+          <strong>Rider App: Don't Use credentials.json</strong>
+          <code>credentials.json</code> at the Rider project root points to a different, unproven keystore. Use the <code>upload-keystore.jks</code> values in the table above &mdash; confirmed working with Play.
+        </div>
+
+        <h3><span class="step-badge">3</span>Bump the Version Code</h3>
+        <p>In Play Console, go to <strong>[App] &rarr; App bundle explorer</strong> and check the highest <code>versionCode</code> across <em>all</em> tracks (Internal, Closed, Open, Production). In <code>android\app\build.gradle</code>, set <code>versionCode</code> one higher than that.</p>
+
+        <h3><span class="step-badge">4</span>Build the Signed .aab</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> android
+<span class="tok-cmd">set</span> <span class="tok-var">NODE_ENV</span>=<span class="tok-string">production</span>
+<span class="tok-cmd">gradlew.bat</span> bundleRelease</code></pre>
+        <p>Wait for <code class="tok-ok">BUILD SUCCESSFUL</code> (5&ndash;20 minutes). Output lands at <code>android\app\build\outputs\bundle\release\app-release.aab</code>.</p>
+
+        <h3><span class="step-badge">5</span>Auto-Submit</h3>
+        <p>Run from the <strong>app root</strong>, not from inside <code>android\</code>:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarDriver
+<span class="tok-cmd">npx</span> eas-cli submit <span class="tok-flag">-p</span> android <span class="tok-flag">--path</span> android\app\build\outputs\bundle\release\app-release.aab</code></pre>
+
+        <h3><span class="step-badge">6</span>Verify</h3>
+        <ul class="doc-list">
+          <li>Play Console &rarr; <strong>App bundle explorer</strong> &mdash; new version code appears within minutes.</li>
+          <li>Play Console &rarr; <strong>Releases overview</strong> &mdash; new release shows status "In review."</li>
+        </ul>
+
+        <h3 id="quota-reset-cmd">Once Cloud Quota Resets</h3>
+        <p>Skip the manual path entirely. Run this per app instead, from the app root:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">npx</span> eas-cli build <span class="tok-flag">-p</span> android <span class="tok-flag">--profile</span> production <span class="tok-flag">--non-interactive</span> <span class="tok-flag">--no-wait</span> <span class="tok-flag">--auto-submit</span></code></pre>
+        <p>This queues a cloud build and auto-submits on completion &mdash; no local signing, no Gradle, no version-code bookkeeping by hand.</p>
+
+        <h3>Troubleshooting</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Most Likely Cause &amp; Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Build is signed with the debug key</td><td><code>--clean</code> was run since the last release build, resetting <code>signingConfig</code> back to debug. Redo Step 2.</td></tr>
+              <tr><td>versionCode already used</td><td><code>--clean</code> reset it to 1, or the App bundle explorer number wasn't re-checked. Redo Step 3 against the current highest across all tracks.</td></tr>
+              <tr><td>Commands fail or behave unexpectedly</td><td>Running in PowerShell or Git Bash instead of Command Prompt. Reopen plain <code>cmd.exe</code> and retry.</td></tr>
+              <tr><td><code>eas-cli submit</code> can't find the .aab or fails immediately</td><td>Submit was run from inside <code>android\</code>. Must run from the app root, as in Step 5.</td></tr>
+              <tr><td>Gradle build fails signing the release variant</td><td>Wrong keystore copied into <code>android\app\</code>, or a Driver/Rider value pasted into the wrong app's <code>build.gradle</code>. Recheck against the table in Step 2.</td></tr>
+              <tr><td>iOS build fails: provisioning profile missing an entitlement</td><td>A new native capability (like Sign in with Apple) was added to <code>app.config.js</code>, but the cached iOS provisioning profile predates it. Run <code>eas build</code> for iOS <strong>without</strong> <code>--non-interactive</code> so EAS can prompt to sync the capability and regenerate the profile.</td></tr>
+              <tr><td><code>eas build --local</code> fails on Android</td><td>Expected &mdash; does not work on Windows for Android. Use the manual Gradle path above instead.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="doc-section" id="website-deployment">
-        <div class="section-label">12.1 Website Deployment</div>
+        <div class="section-label">13.2 Website Deployment</div>
         <h2>Landing Page Deployment Guide</h2>
         <p>The Bahirdar ride-hailing landing page is deployed at <strong>https://taxi.gebetacloud.com</strong> through cPanel Git Version Control on Hostinger. The deployment repository stores only the Vite build output from <strong>dist/</strong>, not the full source code.</p>
 
@@ -1475,7 +1750,7 @@ git status</code></pre>
       </section>
 
       <section class="doc-section" id="roadmap">
-        <div class="section-label">13. Roadmap</div>
+        <div class="section-label">14. Roadmap</div>
         <h2>Post-MVP and Expansion Plan</h2>
         <h3>Phase 2 - Post-MVP Launch</h3>
         <ul class="doc-list">
@@ -1497,6 +1772,54 @@ git status</code></pre>
           <li>Live traffic layer integration when data becomes available for Bahir Dar.</li>
           <li>Driver partner app for fleet owners managing multiple vehicles.</li>
         </ul>
+      </section>
+
+      <section class="doc-section" id="known-issues">
+        <div class="section-label">15. Known Issues &amp; Fixes</div>
+        <h2>Real Bugs Found and Fixed</h2>
+        <p>A running log of real production bugs found during development, why they happened, and how they were fixed &mdash; kept here so the same mistake is never re-debugged twice.</p>
+
+        <h3>Trip Lifecycle</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Root Cause</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Driver accepts a trip after the rider was already told "no drivers found"</td><td>The rider was notified before the trip's status was updated in the database &mdash; a driver could accept in that gap.</td><td>Status is now written to the database first, then the rider is notified &mdash; closing the race window.</td></tr>
+              <tr><td>Trip offer push notifications silently never arrived to drivers</td><td>The push-token lookup query sorted by a database column (<code>updated_at</code>) that doesn't exist on that table.</td><td>Query fixed to sort by the real column, <code>last_used_at</code>.</td></tr>
+              <tr><td>Driver swipes "Complete Trip" and sees "Trip not found" &mdash; but the trip is actually completed</td><td>A slow network response (or a duplicate tap) sent a second completion request after the first one had already succeeded. The second request correctly found nothing left "in progress" and returned a scary-looking error, even though nothing was wrong.</td><td>Completing a trip is now idempotent &mdash; a repeat request for an already-completed trip returns the same success result instead of an error. Applied to all three trip-progress steps (arrived, started, completed).</td></tr>
+              <tr><td>Every driver trip-rejection crashed at the database layer</td><td>The code tried to save the value <code>'rejected'</code> into a column that only allows <code>'declined'</code>.</td><td>Response and status values are now mapped correctly before saving.</td></tr>
+              <tr><td>Driver cancelling a trip never notified the rider in real time</td><td>The socket event name used to notify the rider (<code>TRIP_CANCELLED</code>) was referenced in code but never actually defined anywhere &mdash; it was silently sending to nothing.</td><td>The missing event constant was added, matching the name the rider app already listens for.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Admin Panel</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Root Cause</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>New-trip-request live alert never appeared on the Admin Panel</td><td>The admin browser asked to join a live-updates room, but the server had no listener for that request at all &mdash; admin connections were never actually placed in the room the alert was broadcast to.</td><td>The server now joins every admin connection to that room automatically based on their login role, instead of waiting on a request from the browser.</td></tr>
+              <tr><td>Admin token refresh (<code>POST /admin/refresh</code>) was guaranteed to crash</td><td>The route pointed at a function that was never written.</td><td>The missing function was added, matching the same pattern already used for rider and driver token refresh.</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>Push Notifications</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Root Cause</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Incoming call push notifications silently never arrived</td><td>Same wrong-column bug as trip offers above &mdash; sorted by a column that doesn't exist.</td><td>Fixed to sort by <code>last_used_at</code>.</td></tr>
+              <tr><td>Batched push notifications (multiple recipients at once) silently failed</td><td>The code called the wrong method on the Firebase Admin SDK &mdash; one built for a single shared message to many tokens, not a batch of different per-person messages.</td><td>Switched to the correct method for sending a batch of different messages.</td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <section class="doc-section" id="decisions">
