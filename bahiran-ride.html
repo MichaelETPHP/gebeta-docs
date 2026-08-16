@@ -402,6 +402,45 @@
     th:last-child,
     td:last-child { border-right: 0; }
 
+    .figure-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin: 22px 0 28px;
+    }
+
+    .figure {
+      border: 1px solid var(--black);
+      background: var(--gray-50);
+      flex: 0 0 auto;
+      max-width: 340px;
+    }
+
+    .figure img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border-bottom: 1px solid var(--black);
+    }
+
+    .figure figcaption {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.6px;
+      color: var(--gray-700);
+      padding: 10px 12px;
+    }
+
+    .figure.figure-picked {
+      background: var(--white);
+      box-shadow: 6px 6px 0 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .figure.figure-picked figcaption {
+      color: var(--black);
+      font-weight: 600;
+    }
+
     .code-block {
       position: relative;
       background: var(--gray-900);
@@ -662,7 +701,10 @@
         <a href="#realtime">Real-Time</a>
         <a href="#deployment">Deployment</a>
         <a href="#playstore-submit">Play Store Manual Submit</a>
+        <a href="#local-android-build">Local Android Dev Build</a>
+        <a href="#appstore-submit">App Store Submission</a>
         <a href="#website-deployment">Website Deployment</a>
+        <a href="#server-infra">Server Infrastructure &amp; Scaling</a>
       </div>
       <div class="sidebar-group">
         <span class="sidebar-group-label">Reference</span>
@@ -1661,8 +1703,176 @@ ssh -L 5000:localhost:5000 user@vps_ip   # OSRM tunnel</code></pre>
         </div>
       </section>
 
+      <section class="doc-section" id="local-android-build">
+        <div class="section-label">13.2 Local Android Development Build</div>
+        <h2>Build a Dev-Client APK Locally (No EAS Credits)</h2>
+        <p>EAS Build's free tier has a monthly Android build quota. Once it's exhausted mid-month, this path builds a debug APK entirely on your own machine &mdash; no cloud queue, no credits spent, no wait. It's a debug build (not signed for release), so it's for sideloading onto your own test device only, not for handing to other testers or submitting anywhere.</p>
+
+        <div class="notice-red">
+          <strong>Shell Requirement</strong>
+          Run Gradle commands (<code>gradlew.bat</code>) from plain <strong>Command Prompt (cmd.exe)</strong> or directly via full path. In Git Bash, chaining <code>cd android &amp;&amp; cmd /c "gradlew.bat ..."</code> does NOT reliably carry the working directory into the spawned <code>cmd.exe</code> process &mdash; it fails with <code>'gradlew.bat' is not recognized</code> even though the file exists. Calling <code>gradlew.bat</code> by its full path also isn't enough on its own, since Gradle defaults to the current directory as the project root, not the script's own folder &mdash; pass <code>-p</code> explicitly pointing at <code>android\</code> to sidestep the whole issue.
+        </div>
+
+        <h3><span class="step-badge">1</span>Confirm the Toolchain Is Present</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Requirement</th><th>Check</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Android SDK</td><td><code>echo %ANDROID_HOME%</code> &mdash; should point at an existing SDK folder</td></tr>
+              <tr><td>Java (JDK 17)</td><td><code>java -version</code></td></tr>
+              <tr><td>adb</td><td>Lives at <code>%ANDROID_HOME%\platform-tools\adb.exe</code> &mdash; usually not on PATH, use the full path or add it once</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="step-badge">2</span>Regenerate the Native Project</h3>
+        <p>Run from the app root, with the same env vars the "development" <code>eas.json</code> profile uses (all <code>EXPO_PUBLIC_*</code> vars must be set &mdash; <code>app.config.js</code> throws if <code>EXPO_PUBLIC_GOOGLE_MAPS_API_KEY</code> is missing, see <a href="#known-issues">Known Issues</a>):</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarRide
+<span class="tok-cmd">npx</span> expo prebuild <span class="tok-flag">--platform</span> android <span class="tok-flag">--clean</span></code></pre>
+
+        <h3><span class="step-badge">3</span>Build the Debug APK</h3>
+        <p>Call <code>gradlew.bat</code> by full path with <code>-p</code> pointing at the <code>android</code> folder &mdash; this avoids the working-directory issue in the red notice above entirely:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code>C:\SVELT_APP\CityBird-Bahirdar\BahirdarRide\android\gradlew.bat <span class="tok-flag">-p</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarRide\android assembleDebug</code></pre>
+        <p>First build compiles native C++ modules (reanimated, screens, svg) from scratch &mdash; this alone can take 10&ndash;20 minutes even on a fast machine. Subsequent builds are much faster since Gradle caches most of it. Output lands at:</p>
+        <pre class="code-block"><code>android\app\build\outputs\apk\debug\app-debug.apk</code></pre>
+
+        <h3><span class="step-badge">4</span>Enable USB Debugging on the Phone</h3>
+        <ul class="doc-list">
+          <li>Settings &rarr; About phone &rarr; tap "Build number" 7 times &mdash; unlocks Developer options.</li>
+          <li>Settings &rarr; Developer options &rarr; turn on "USB debugging".</li>
+          <li>Plug the phone into the PC via USB. A popup appears on the phone: "Allow USB debugging?" &mdash; check "Always allow from this computer" and tap Allow. If it doesn't appear, unlock the phone screen first.</li>
+        </ul>
+
+        <h3><span class="step-badge">5</span>Confirm the PC Sees the Phone</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code>%ANDROID_HOME%\platform-tools\adb.exe devices</code></pre>
+        <p>Should list the phone's serial number with status <code>device</code>. If it shows <code>unauthorized</code> instead, check the phone screen for the debugging popup and accept it.</p>
+
+        <h3><span class="step-badge">6</span>Install Directly Onto the Phone</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code>%ANDROID_HOME%\platform-tools\adb.exe install C:\SVELT_APP\CityBird-Bahirdar\BahirdarRide\android\app\build\outputs\apk\debug\app-debug.apk</code></pre>
+        <p>This pushes and installs the APK in one step &mdash; no manual file transfer needed. Open the app on the phone and test.</p>
+      </section>
+
+      <section class="doc-section" id="appstore-submit">
+        <div class="section-label">13.3 App Store Submission</div>
+        <h2>iOS App Store Deployment (Rider App)</h2>
+        <p><strong>BahirdarRide</strong> is the first app going to the App Store &mdash; the Driver app follows once the Rider release is stable. iOS builds go through EAS Build (cloud) and are submitted to App Store Connect, then reviewed by Apple before going live. Expect 1&ndash;3 days of Apple review, and budget time for at least one round of feedback.</p>
+
+        <div class="notice-red">
+          <strong>Apple Requires These Two Pages Before Submission</strong>
+          Apple rejects any app that collects personal data (phone number, location, name) without a live Privacy Policy URL, and rejects any account-based app that does not offer account deletion (Guideline 5.1.1(v)). Both are already live:
+          <ul class="doc-list">
+            <li>Privacy Policy &mdash; <code>https://taxi.gebetacloud.com/privacy</code></li>
+            <li>Delete Account &mdash; <code>https://taxi.gebetacloud.com/delete-account</code></li>
+          </ul>
+        </div>
+
+        <h3><span class="step-badge">1</span>Apple Developer Account</h3>
+        <p>Requires an active Apple Developer Program membership ($99/year), enrolled under the same account used for push notification keys and Sign in with Apple. Confirm the membership is current in <strong>developer.apple.com &rarr; Membership</strong> before starting &mdash; a lapsed membership blocks both building and submitting.</p>
+
+        <h3><span class="step-badge">2</span>Create the App Store Connect Record</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Field</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Bundle ID</td><td>com.bahirdar.ride</td></tr>
+              <tr><td>App Name</td><td>Bahiran Ride</td></tr>
+              <tr><td>Primary Category</td><td>Travel</td></tr>
+              <tr><td>Privacy Policy URL</td><td>https://taxi.gebetacloud.com/privacy</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>In App Store Connect &rarr; <strong>App Privacy</strong>, fill in the Privacy Nutrition Label using the table below &mdash; every row is linked to the user's identity, so mark "Data Not Linked to You" as <strong>No</strong> across the board.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Data Type</th><th>Collected?</th><th>Used For</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Phone number</td><td>Yes</td><td>Login, account identity</td></tr>
+              <tr><td>Name</td><td>Yes</td><td>Account, shown to matched driver</td></tr>
+              <tr><td>Precise location</td><td>Yes</td><td>Ride matching, live trip tracking</td></tr>
+              <tr><td>Email</td><td>Optional &mdash; only if Google/Apple sign-in used</td><td>Account</td></tr>
+              <tr><td>Photo</td><td>If profile photo uploaded</td><td>Profile display</td></tr>
+              <tr><td>Payment / wallet info</td><td>Yes</td><td>Wallet balance, trip payment</td></tr>
+              <tr><td>Audio (voice call)</td><td>Live only, never recorded or stored</td><td>In-app rider &harr; driver calling</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3><span class="step-badge">3</span>Confirm Production Config Is Review-Safe</h3>
+        <p><code>app.config.js</code> auto-detects the build environment from <code>EXPO_PUBLIC_API_URL</code> &mdash; no manual switching needed, but worth confirming before a production build:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Setting</th><th>Development (local IP)</th><th>Production (App Store)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>App Transport Security</td><td><code>NSAllowsArbitraryLoads: true</code> &mdash; needed for the plain-http local dev server</td><td>Not present &mdash; API is https, so ATS stays fully enforced</td></tr>
+              <tr><td>Location permission</td><td>Same in both &mdash; foreground-only</td><td><code>locationWhenInUsePermission</code>, never <code>Always</code> &mdash; the app never calls <code>requestBackgroundPermissionsAsync()</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="notice-amber">
+          <strong>Why This Matters</strong>
+          Apple review checks that declared permissions match actual runtime behavior. Requesting "Always" location access or shipping <code>NSAllowsArbitraryLoads</code> with no justification are both common, avoidable rejection reasons &mdash; both are already scoped correctly in this codebase.
+        </div>
+
+        <h3><span class="step-badge">4</span>Reviewer Test Account</h3>
+        <p>Login is phone number + SMS OTP, which Apple's reviewer cannot receive. A fixed bypass account already exists server-side in <code>bahirdar-api/src/services/auth.service.ts</code> &mdash; no real SMS is ever sent for this number:</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Field</th><th>Value</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Phone</td><td>0919333399</td></tr>
+              <tr><td>OTP</td><td>1234</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Verify this account reaches the home screen cleanly (not stuck mid-onboarding) before submitting, then reference it plus the delete-account URL in App Store Connect &rarr; <strong>App Review Information &rarr; Notes</strong>, along with a one-line explanation that voice calling is in-app VoIP (audio only, no camera use).</p>
+
+        <h3><span class="step-badge">5</span>Build the Production IPA</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">cd</span> C:\SVELT_APP\CityBird-Bahirdar\BahirdarRide
+<span class="tok-cmd">npx</span> eas-cli build <span class="tok-flag">-p</span> ios <span class="tok-flag">--profile</span> production</code></pre>
+        <div class="notice-amber">
+          <strong>Don't Use --non-interactive Here</strong>
+          If a native capability changed since the last iOS build (like a new entitlement), EAS needs to prompt to sync it and regenerate the provisioning profile. Run this one without <code>--non-interactive</code> so it can ask.
+        </div>
+
+        <h3><span class="step-badge">6</span>Submit to App Store Connect</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">npx</span> eas-cli submit <span class="tok-flag">-p</span> ios <span class="tok-flag">--latest</span></code></pre>
+        <p>This uploads the build to App Store Connect. It then needs a few minutes for Apple's automated processing before it's selectable in TestFlight or a version release.</p>
+
+        <h3><span class="step-badge">7</span>TestFlight First</h3>
+        <p>Before submitting for public App Store review, add the build to an internal TestFlight group and test on a real device for a few days &mdash; phone login, Google/Apple sign-in, push notifications, voice calling, and wallet top-up flow all need a real-device pass since none of these work correctly in a simulator.</p>
+
+        <h3><span class="step-badge">8</span>Submit for App Review</h3>
+        <p>In App Store Connect, attach the TestFlight-verified build to a new version, fill in screenshots (6.7&Prime; and 6.5&Prime; iPhone sizes required), description, keywords, and support URL, then submit. Apple review typically takes 1&ndash;3 days.</p>
+
+        <h3>Common Rejection Reasons &amp; Fixes</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Rejection Reason</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Reviewer can't log in</td><td>Confirm the test account (Step 4) reaches the home screen cleanly before submitting.</td></tr>
+              <tr><td>Missing or unclear account deletion</td><td>Point Apple to the delete-account URL in the review notes; confirm the page is live and describes the actual deletion process.</td></tr>
+              <tr><td>Unjustified ATS exception</td><td>Already fixed &mdash; production builds no longer carry <code>NSAllowsArbitraryLoads</code>. Re-verify with <code>npx expo config --type public</code> if this ever regresses.</td></tr>
+              <tr><td>Third-party login without Sign in with Apple</td><td>Already covered &mdash; <code>usesAppleSignIn: true</code> is set alongside Google Sign-In per Guideline 4.8.</td></tr>
+              <tr><td>Background location requested but unused</td><td>Already fixed &mdash; permission narrowed to <code>locationWhenInUsePermission</code> only.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="doc-section" id="website-deployment">
-        <div class="section-label">13.2 Website Deployment</div>
+        <div class="section-label">13.4 Website Deployment</div>
         <h2>Landing Page Deployment Guide</h2>
         <p>The Bahirdar ride-hailing landing page is deployed at <strong>https://taxi.gebetacloud.com</strong> through cPanel Git Version Control on Hostinger. The deployment repository stores only the Vite build output from <strong>dist/</strong>, not the full source code.</p>
 
@@ -1869,6 +2079,111 @@ git status</code></pre>
             </tbody>
           </table>
         </div>
+
+        <h3>Mobile Build &amp; Config</h3>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Symptom</th><th>Root Cause</th><th>Fix</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Rider app (Android) crashed instantly on any map screen: <code>IllegalStateException: API key not found</code></td><td><code>react-native-maps</code> ships its own Android config plugin, which fully replaces Expo's standard <code>android.config.googleMaps.apiKey</code> mechanism once it's present. It reads a different prop, <code>androidGoogleMapsApiKey</code> &mdash; since that was never passed, the plugin's own logic actively <strong>removed</strong> the <code>com.google.android.geo.API_KEY</code> meta-data tag from the manifest on every build. Confirmed by downloading a built APK and inspecting <code>AndroidManifest.xml</code> directly &mdash; the tag was completely absent, not just empty.</td><td>Added <code>androidGoogleMapsApiKey: process.env.EXPO_PUBLIC_GOOGLE_MAPS_API_KEY</code> to the <code>react-native-maps</code> plugin config in <code>app.config.js</code>, alongside the existing <code>iosGoogleMapsApiKey</code>. Verified by regenerating the native project and grepping the fresh manifest for the tag.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="notice-amber">
+          <strong>Also Added: A Fail-Loud Guard</strong>
+          <code>app.config.js</code> now throws immediately at config-resolution time if <code>EXPO_PUBLIC_GOOGLE_MAPS_API_KEY</code> is missing entirely, for any build profile. This doesn't replace the fix above (a wrong plugin field name, not a missing env var, caused this specific bug) &mdash; it's a second safety net so a truly-missing key fails the build loudly instead of shipping a broken map to a real device.
+        </div>
+      </section>
+
+      <section class="doc-section" id="server-infra">
+        <div class="section-label">16. Server Infrastructure &amp; Scaling</div>
+        <h2>Splitting Development From Production</h2>
+        <p>Today, one Hostinger VPS runs everything &mdash; development work and the live production services share the same box. The decision made in planning was to keep that current VPS as the <strong>development / staging</strong> machine, and buy a second, dedicated VPS for <strong>production only</strong>. This section documents that decision: why a second server is needed, the two plans compared, the one chosen, its real monthly cost, and what its 2 Mbps bandwidth allowance actually means for real riders and drivers.</p>
+
+        <div class="notice-amber">
+          <strong>Planning Decision, Not Yet Purchased</strong>
+          Everything below reflects a decision reached in team discussion. No server has been purchased, and no migration has happened yet. Treat the numbers here as the current plan, not a live production fact until this notice is updated.
+        </div>
+
+        <h3>Why the Current VPS Isn't Enough</h3>
+        <p>The self-hosted stack this platform runs on is heavier than a typical small app, because almost nothing is outsourced to a third-party PaaS:</p>
+        <ul class="doc-list">
+          <li><strong>Self-hosted Supabase</strong> is the biggest RAM consumer. It isn't one process &mdash; it's several containers running together (PostgreSQL, GoTrue/Auth, PostgREST, the Storage API, Realtime, and Studio), all resident in memory at once.</li>
+          <li><strong>Coolify</strong>, the deployment platform managing every container, has its own constant baseline memory and CPU overhead just to stay running &mdash; before any app code executes.</li>
+          <li><strong>OSRM</strong>, the self-hosted routing engine that calculates driver routes and ETAs, loads the full Bahir Dar map extract into memory for the life of the process. It's fast (sub-50ms) precisely because it avoids disk lookups, but that speed is traded for a fixed RAM cost.</li>
+          <li>On top of all that: the backend API, the admin panel, Redis (live GPS), and the database itself are all fighting for the same pool of CPU and RAM.</li>
+        </ul>
+        <p>Running development work &mdash; test builds, schema migrations, debugging sessions &mdash; on the same box as live riders and drivers means a heavy dev task can slow down or destabilize the app real users depend on. Separating the two removes that risk entirely.</p>
+
+        <h3>Plans Compared</h3>
+        <p>Two Hostinger VPS tiers were compared side by side for the new production server:</p>
+
+        <div class="figure-row">
+          <figure class="figure">
+            <img src="/infra/vps-cs02004-plan.png" alt="Hostinger VPS plan CS02004: 2 CPUs, 4GB RAM, 30GB OS storage, 25GB data storage, 2Mbps uplink/downlink, ETB 5,205 per month">
+            <figcaption>CS02004 &mdash; considered, not chosen</figcaption>
+          </figure>
+          <figure class="figure figure-picked">
+            <img src="/infra/vps-cs04008-plan.png" alt="Hostinger VPS plan CS04008: 4 CPUs, 8GB RAM, 30GB OS storage, 50GB data storage, 2Mbps uplink/downlink, ETB 10,458 per month">
+            <figcaption>CS04008 &mdash; selected for production</figcaption>
+          </figure>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Spec</th><th>CS02004</th><th>CS04008 (chosen)</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>CPUs</td><td>2</td><td>4</td></tr>
+              <tr><td>RAM</td><td>4GB</td><td>8GB</td></tr>
+              <tr><td>OS storage</td><td>30GB</td><td>30GB</td></tr>
+              <tr><td>Data storage</td><td>25GB</td><td>50GB</td></tr>
+              <tr><td>Dedicated public IP</td><td>Yes</td><td>Yes</td></tr>
+              <tr><td>Internet uplink / downlink</td><td>2 Mbps</td><td>2 Mbps</td></tr>
+              <tr><td>Backup</td><td>Weekly</td><td>Weekly</td></tr>
+              <tr><td>Access</td><td>SSH or RDP</td><td>SSH or RDP</td></tr>
+              <tr><td>Support</td><td>24/7</td><td>24/7</td></tr>
+              <tr><td>Price</td><td>ETB 5,205 / month</td><td>ETB 10,458 / month</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <p><strong>CS04008 was chosen.</strong> Double the CPU and RAM of CS02004 gives the self-hosted Supabase stack, OSRM, and the backend API real headroom to run together without competing for resources &mdash; and the larger 50GB data storage leaves more room for database growth (trip history, chat, uploaded documents) before a resize is needed. Both tiers offer the identical 2 Mbps network allowance, so bandwidth was not a factor in the choice.</p>
+
+        <h3>Cost in Real Terms</h3>
+        <p>Converted at the current Dashen Bank buying rate used elsewhere on this platform (~160 ETB/USD, via the live FX sync job):</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr><th>Plan</th><th>ETB / month</th><th>≈ USD / month</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>CS02004</td><td>5,205</td><td>≈ $33</td></tr>
+              <tr><td>CS04008 (chosen)</td><td>10,458</td><td>≈ $65</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>What 2 Mbps Uplink / Downlink Actually Means</h3>
+        <p>In simple terms: think of the server's internet connection as one water pipe. That pipe is shared by <em>every</em> phone talking to it at the same time &mdash; it is not "2 Mbps for each person." Everyone's data flows through the same pipe together.</p>
+        <ul class="doc-list">
+          <li><strong>Downlink</strong> is how fast data can flow <em>in</em> to the server &mdash; a rider's phone sending a GPS location update, a driver accepting a trip, someone uploading a document.</li>
+          <li><strong>Uplink</strong> is how fast data can flow <em>out</em> from the server &mdash; trip confirmations, map data, push notifications, chat messages going back out to phones.</li>
+        </ul>
+
+        <p>Does 2 Mbps, shared across everyone, hold up under real load? A GPS location ping is small &mdash; a few hundred bytes of JSON, not a photo or a video. As a planning estimate:</p>
+        <ul class="doc-list">
+          <li>One rider's phone sends a location update roughly every 3 seconds, about 0.5KB (500 bytes) each time.</li>
+          <li>That works out to about 1.3 kbps (kilobits per second) of steady traffic per active rider.</li>
+          <li>At 150 riders all actively requesting or tracking a trip at the same time, that's about 150 &times; 1.3 kbps &asymp; 0.2 Mbps total.</li>
+        </ul>
+        <div class="callout">
+          0.2 Mbps of GPS traffic against a 2 Mbps pipe is roughly <strong>10% used, 90% still free</strong> &mdash; even with 150 people using the app at the exact same moment. There's substantial headroom left over for trip requests, chat, push notifications, and admin dashboard traffic riding the same pipe.
+        </div>
+        <p>The number to actually watch as the user base grows isn't bandwidth &mdash; it's CPU and RAM, since matching drivers to riders, calculating routes through OSRM, and running database queries cost far more compute per request than moving a small GPS packet costs bandwidth. That's the same conclusion the CS04008 choice above was built on.</p>
       </section>
 
       <section class="doc-section" id="decisions">
