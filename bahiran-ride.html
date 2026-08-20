@@ -4,6 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bahiran Ride Platform Documentation</title>
+  <script>
+    // Runs before first paint so there's no flash of the wrong theme.
+    (function () {
+      var saved = localStorage.getItem('bahiran-docs-theme');
+      var theme = saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      if (theme === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
 
@@ -18,6 +26,31 @@
       --gray-500: #707070;
       --gray-700: #404040;
       --gray-900: #141414;
+
+      /* Chrome that stays a fixed dark surface in both themes (topbar, code
+         blocks, table headers) — decoupled from --black/--white on purpose
+         so flipping the page theme doesn't invert already-dark UI. */
+      --chrome-bg: #000000;
+      --chrome-ink: #ffffff;
+      --chrome-border: #404040;
+      --chrome-surface: #141414;
+
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --shadow-color: rgba(0, 0, 0, 0.12);
+    }
+
+    :root[data-theme="dark"] {
+      --black: #f2f2f2;
+      --white: #111111;
+      --gray-50: #1a1a1a;
+      --gray-100: #1f1f1f;
+      --gray-200: #2c2c2c;
+      --gray-300: #3c3c3c;
+      --gray-400: #7a7a7a;
+      --gray-500: #9c9c9c;
+      --gray-700: #c9c9c9;
+      --gray-900: #ececec;
+      --shadow-color: rgba(0, 0, 0, 0.45);
     }
 
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -29,13 +62,14 @@
       color: var(--black);
       font-size: 15px;
       line-height: 1.7;
+      transition: background 0.2s ease, color 0.2s ease;
     }
 
     .topbar {
       position: fixed;
       top: 0; left: 0; right: 0;
       height: 52px;
-      background: var(--black);
+      background: var(--chrome-bg);
       display: flex;
       align-items: center;
       justify-content: space-between;
@@ -47,7 +81,7 @@
       font-family: 'IBM Plex Mono', monospace;
       font-size: 13px;
       font-weight: 600;
-      color: var(--white);
+      color: var(--chrome-ink);
       letter-spacing: 3px;
       text-transform: uppercase;
       text-decoration: none;
@@ -63,6 +97,39 @@
       flex: 0 0 auto;
     }
 
+    .theme-toggle {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      margin-left: 16px;
+      flex: 0 0 auto;
+      border: 1px solid var(--chrome-border);
+      background: transparent;
+      color: var(--chrome-ink);
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.16s var(--ease-out), background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .theme-toggle:hover { background: rgba(255, 255, 255, 0.08); border-color: var(--chrome-ink); }
+    .theme-toggle:active { transform: scale(0.93); }
+
+    .theme-toggle svg {
+      width: 16px;
+      height: 16px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .theme-toggle .icon-moon { display: none; }
+    :root[data-theme="dark"] .theme-toggle .icon-sun { display: none; }
+    :root[data-theme="dark"] .theme-toggle .icon-moon { display: block; }
+
     .topbar-search {
       flex: 0 1 380px;
       position: relative;
@@ -74,9 +141,9 @@
     .topbar-search input {
       width: 100%;
       height: 34px;
-      border: 1px solid var(--gray-700);
-      background: var(--gray-900);
-      color: var(--white);
+      border: 1px solid var(--chrome-border);
+      background: var(--chrome-surface);
+      color: var(--chrome-ink);
       padding: 0 92px 0 34px;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 12px;
@@ -84,8 +151,8 @@
     }
 
     .topbar-search input:focus {
-      border-color: var(--white);
-      background: var(--black);
+      border-color: var(--chrome-ink);
+      background: var(--chrome-bg);
     }
 
     .topbar-search input::placeholder { color: var(--gray-500); }
@@ -211,12 +278,25 @@
     .sidebar a {
       display: flex;
       align-items: center;
+      gap: 10px;
       padding: 7px 20px;
       font-size: 13px;
       color: var(--gray-500);
       text-decoration: none;
       border-left: 2px solid transparent;
-      transition: all 0.15s;
+      transition: color 0.15s ease, background 0.15s ease, border-left-color 0.15s ease;
+    }
+
+    .sidebar a svg {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.75;
     }
 
     .sidebar a:hover {
@@ -231,6 +311,8 @@
       border-left-color: var(--black);
       font-weight: 500;
     }
+
+    .sidebar a.active svg { opacity: 1; }
 
     .main {
       flex: 1;
@@ -389,8 +471,8 @@
     }
 
     th {
-      background: var(--black);
-      color: var(--white);
+      background: var(--chrome-bg);
+      color: var(--chrome-ink);
       font-family: 'IBM Plex Mono', monospace;
       font-size: 11px;
       letter-spacing: 1px;
@@ -443,9 +525,9 @@
 
     .code-block {
       position: relative;
-      background: var(--gray-900);
-      color: var(--white);
-      border: 1px solid var(--black);
+      background: var(--chrome-surface);
+      color: var(--chrome-ink);
+      border: 1px solid var(--chrome-bg);
       padding: 46px 16px 16px;
       margin: 18px 0 24px;
       overflow-x: auto;
@@ -454,13 +536,79 @@
       line-height: 1.6;
     }
 
+    .code-lang {
+      position: absolute;
+      top: 10px;
+      left: 16px;
+      color: #7a7a7a;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .tok-cmd     { color: #7fd1ff; }
+    .tok-flag    { color: #ffb870; }
+    .tok-key     { color: #b9a1ff; }
+    .tok-comment { color: #7a7a7a; font-style: italic; }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      margin-right: 10px;
+      border-radius: 50%;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .notice-amber {
+      border: 1px solid #f0d999;
+      border-left: 4px solid #b8860b;
+      background: #fffaf0;
+      color: #6b4e00;
+      padding: 16px 18px;
+      margin: 24px 0 6px;
+      max-width: 820px;
+    }
+
+    .notice-amber strong {
+      display: block;
+      color: #5c4200;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    :root[data-theme="dark"] .notice-red {
+      border-color: #5a2020;
+      background: #241212;
+      color: #ff9c9c;
+    }
+    :root[data-theme="dark"] .notice-red strong { color: #ffb3b3; }
+
+    :root[data-theme="dark"] .notice-amber {
+      border-color: #5a4a10;
+      background: #241d0d;
+      color: #f0cf7a;
+    }
+    :root[data-theme="dark"] .notice-amber strong { color: #f7dd97; }
+
     .code-copy {
       position: absolute;
       top: 10px;
       right: 10px;
-      border: 1px solid var(--gray-500);
-      background: var(--black);
-      color: var(--white);
+      border: 1px solid var(--chrome-border);
+      background: var(--chrome-bg);
+      color: var(--chrome-ink);
       padding: 6px 10px;
       font-family: 'IBM Plex Mono', monospace;
       font-size: 10px;
@@ -473,9 +621,9 @@
 
     .code-copy:hover,
     .code-copy.copied {
-      background: var(--white);
-      color: var(--black);
-      border-color: var(--white);
+      background: var(--chrome-ink);
+      color: var(--chrome-bg);
+      border-color: var(--chrome-ink);
     }
 
     .callout {
@@ -676,43 +824,53 @@
       <div class="search-results" id="search-results" role="listbox" aria-label="Search results"></div>
     </div>
     <div class="topbar-meta">v1.0.0 &mdash; Bahiran Ride</div>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch between light and dark theme">
+      <svg class="icon-sun" viewBox="0 0 24 24" aria-hidden="true">
+        <circle cx="12" cy="12" r="4"></circle>
+        <path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"></path>
+      </svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+      </svg>
+    </button>
   </div>
 
   <div class="layout">
     <nav class="sidebar" aria-label="Bahiran Ride documentation navigation">
       <div class="sidebar-group">
         <span class="sidebar-group-label">Business</span>
-        <a href="#overview" class="active">Project Overview</a>
-        <a href="#business-model">Business Model</a>
-        <a href="#roadmap">Roadmap</a>
+        <a href="#overview" class="active"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>Project Overview</a>
+        <a href="#business-model"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg>Business Model</a>
+        <a href="#roadmap"><svg viewBox="0 0 24 24"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>Roadmap</a>
       </div>
       <div class="sidebar-group">
         <span class="sidebar-group-label">Product</span>
-        <a href="#authentication">Sign-In Methods</a>
-        <a href="#rider-app">Rider App</a>
-        <a href="#driver-app">Driver App</a>
-        <a href="#admin-panel">Admin Panel</a>
+        <a href="#authentication"><svg viewBox="0 0 24 24"><path d="m15.5 7.5 3 3L22 7l-3-3"></path><path d="m21 2-9.6 9.6"></path><circle cx="7.5" cy="15.5" r="5.5"></circle></svg>Sign-In Methods</a>
+        <a href="#rider-app"><svg viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>Rider App</a>
+        <a href="#driver-app"><svg viewBox="0 0 24 24"><path d="M5 17h14M5 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM19 17a2 2 0 1 0 0 4 2 2 0 0 0 0-4zM3 17V10l2-5h14l2 5v7"></path></svg>Driver App</a>
+        <a href="#admin-panel"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z"></path></svg>Admin Panel</a>
       </div>
       <div class="sidebar-group">
         <span class="sidebar-group-label">Development</span>
-        <a href="#technology">Technology Stack</a>
-        <a href="#database">Database</a>
-        <a href="#matching">Matching Engine</a>
-        <a href="#realtime">Real-Time</a>
-        <a href="#deployment">Deployment</a>
-        <a href="#playstore-submit">Play Store Manual Submit</a>
-        <a href="#local-android-build">Local Android Dev Build</a>
-        <a href="#appstore-submit">App Store Submission</a>
-        <a href="#website-deployment">Website Deployment</a>
-        <a href="#server-infra">Server Infrastructure &amp; Scaling</a>
+        <a href="#technology"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"></rect><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"></path></svg>Technology Stack</a>
+        <a href="#database"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="8" ry="3"></ellipse><path d="M4 5v14c0 1.66 3.58 3 8 3s8-1.34 8-3V5"></path><path d="M4 12c0 1.66 3.58 3 8 3s8-1.34 8-3"></path></svg>Database</a>
+        <a href="#matching"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"></circle><circle cx="12" cy="12" r="4.5"></circle><circle cx="12" cy="12" r="0.9" fill="currentColor" stroke="none"></circle></svg>Matching Engine</a>
+        <a href="#realtime"><svg viewBox="0 0 24 24"><polyline points="3 12 8 12 10 6 14 18 16 12 21 12"></polyline></svg>Real-Time</a>
+        <a href="#deployment"><svg viewBox="0 0 24 24"><path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"></path><polyline points="8 16 12 12 16 16"></polyline><line x1="12" y1="12" x2="12" y2="21"></line></svg>Deployment</a>
+        <a href="#playstore-submit"><svg viewBox="0 0 24 24"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>Play Store Manual Submit</a>
+        <a href="#local-android-build"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg>Local Android Dev Build</a>
+        <a href="#appstore-submit"><svg viewBox="0 0 24 24"><path d="M21 8v8a1 1 0 0 1-.5.87l-8 4.62a1 1 0 0 1-1 0l-8-4.62A1 1 0 0 1 3 16V8a1 1 0 0 1 .5-.87l8-4.62a1 1 0 0 1 1 0l8 4.62A1 1 0 0 1 21 8z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>App Store Submission</a>
+        <a href="#website-deployment"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>Website Deployment</a>
+        <a href="#turn-relay-setup"><svg viewBox="0 0 24 24"><path d="M15.05 5A5 5 0 0 1 19 8.95M15.05 1A9 9 0 0 1 23 8.94m-1 7.98v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 1h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>TURN Call Relay Setup</a>
+        <a href="#server-infra"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="7" rx="1"></rect><rect x="2" y="14" width="20" height="7" rx="1"></rect><line x1="6" y1="6.5" x2="6.01" y2="6.5"></line><line x1="6" y1="17.5" x2="6.01" y2="17.5"></line></svg>Server Infrastructure &amp; Scaling</a>
       </div>
       <div class="sidebar-group">
         <span class="sidebar-group-label">Reference</span>
-        <a href="#fares">Fares</a>
-        <a href="#performance">Performance</a>
-        <a href="#notifications">Notifications</a>
-        <a href="#known-issues">Known Issues &amp; Fixes</a>
-        <a href="#decisions">Decisions</a>
+        <a href="#fares"><svg viewBox="0 0 24 24"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>Fares</a>
+        <a href="#performance"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>Performance</a>
+        <a href="#notifications"><svg viewBox="0 0 24 24"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>Notifications</a>
+        <a href="#known-issues"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Known Issues &amp; Fixes</a>
+        <a href="#decisions"><svg viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>Decisions</a>
       </div>
     </nav>
 
@@ -2008,6 +2166,181 @@ git restore .htaccess
 git status</code></pre>
       </section>
 
+      <section class="doc-section" id="turn-relay-setup">
+        <div class="section-label">13.5 Voice Calling: TURN Relay Setup</div>
+        <h2>Why Some Calls Failed, and How TURN Fixes It</h2>
+        <p>In-app voice calling (rider &lt;-&gt; driver, and admin &lt;-&gt; rider for support) uses WebRTC, which normally connects two phones directly to each other. That works most of the time using free Google <strong>STUN</strong> servers, which just help two phones find each other's address. But some networks &mdash; certain mobile carriers, office WiFi, strict firewalls &mdash; block that direct connection entirely. On those networks the call would silently fail: no error, just permanent "Connecting&hellip;".</p>
+        <p>The fix is a <strong>TURN</strong> server: a relay server we run ourselves that both phones' audio can flow through when a direct connection isn't possible. This section documents the full setup, step by step, exactly as it was done on our own VPS.</p>
+
+        <div class="callout">
+          <strong style="display:block; font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:1.2px; text-transform:uppercase; margin-bottom:6px; color:var(--gray-900);">In One Sentence</strong>
+          STUN helps two phones find each other. TURN is a backup that carries the actual call audio through our own server when a direct connection is blocked. STUN is always free; TURN costs us a little bandwidth on our own VPS, which is why it uses short-lived, per-call passwords instead of one fixed password.
+        </div>
+
+        <h3>Step 1 &mdash; Point a Subdomain at the VPS</h3>
+        <p>The TURN server needs its own address. We used <code>turn.YOURDOMAIN.com</code>, pointed at the same VPS that already runs the API on Coolify.</p>
+        <ol class="doc-list">
+          <li>Find the VPS's public IP address (Hostinger hPanel &rarr; VPS overview, or Coolify's server settings).</li>
+          <li>In the domain's DNS panel (Dynadot in our case), add a new <strong>A record</strong>: host <code>turn</code>, value = the VPS's public IP.</li>
+          <li>Wait a few minutes for it to spread across the internet, then confirm it with:</li>
+        </ol>
+        <pre class="code-block"><span class="code-lang">bash</span><code><span class="tok-cmd">nslookup</span> turn.YOURDOMAIN.com</code></pre>
+
+        <h3><span class="step-badge">1</span>Install coturn (the TURN server software)</h3>
+        <p>Run these in the Coolify <strong>Server</strong> terminal (not an individual app's terminal &mdash; this needs host-level access to run Docker and open firewall ports).</p>
+        <p>Make a config folder and generate a random secret. This secret is what proves a login request is really from our own app &mdash; treat it like a password:</p>
+        <pre class="code-block"><span class="code-lang">bash</span><code><span class="tok-cmd">mkdir</span> -p /opt/coturn
+<span class="tok-cmd">openssl</span> rand -hex 32</code></pre>
+        <div class="notice-red">
+          <strong>Never Paste the Secret Anywhere Public</strong>
+          Copy the output somewhere private. Never paste it into a chat, a shared doc, or commit it to git. If it's ever exposed, generate a new one immediately and update it in both places (the VPS config below, and the API's environment variables).
+        </div>
+
+        <p>Create <code>/opt/coturn/turnserver.conf</code>:</p>
+        <pre class="code-block"><span class="code-lang">conf</span><code>listening-port=3478
+min-port=49160
+max-port=49200
+
+external-ip=YOUR_VPS_PUBLIC_IP
+listening-ip=YOUR_VPS_PUBLIC_IP
+relay-ip=YOUR_VPS_PUBLIC_IP
+
+realm=turn.YOURDOMAIN.com
+server-name=turn.YOURDOMAIN.com
+
+use-auth-secret
+static-auth-secret=PASTE_YOUR_OWN_SECRET_HERE
+
+<span class="tok-comment"># Security: never let this server relay traffic into our own private network</span>
+denied-peer-ip=10.0.0.0-10.255.255.255
+denied-peer-ip=172.16.0.0-172.31.255.255
+denied-peer-ip=192.168.0.0-192.168.255.255
+denied-peer-ip=127.0.0.0-127.255.255.255
+denied-peer-ip=169.254.0.0-169.254.255.255
+
+log-file=stdout
+no-cli
+fingerprint</code></pre>
+
+        <div class="notice-amber">
+          <strong>Why listening-ip and relay-ip Matter</strong>
+          Coolify creates a private Docker network for every app on the same VPS. Without pinning <code>listening-ip</code>/<code>relay-ip</code> to just the public IP, coturn will also listen on every one of those internal networks &mdash; harmless on its own since <code>denied-peer-ip</code> blocks relaying into them, but messy and unnecessary. Pin it to just the public IP.
+        </div>
+
+        <p>Start it as a Docker container:</p>
+        <pre class="code-block"><span class="code-lang">bash</span><code><span class="tok-cmd">docker</span> run -d -t \
+  --name coturn \
+  --network host \
+  --restart unless-stopped \
+  -v /opt/coturn/turnserver.conf:/etc/coturn/turnserver.conf:ro \
+  coturn/coturn -c /etc/coturn/turnserver.conf</code></pre>
+
+        <div class="notice-amber">
+          <strong>The -t Flag Is Required</strong>
+          Without it, coturn's logs look completely empty in <code>docker logs</code> even though the server is working fine. coturn is a C program: when its output isn't going to a real terminal, it buffers everything in memory instead of writing it out line by line. The <code>-t</code> flag gives Docker a fake terminal, which fixes this. Cost us a fair bit of confused debugging before finding it &mdash; saving it here so it isn't rediscovered the hard way again.
+        </div>
+
+        <p>Confirm it's running:</p>
+        <pre class="code-block"><span class="code-lang">bash</span><code><span class="tok-cmd">docker</span> logs coturn --tail 20</code></pre>
+        <p>You should see lines like <code>relay YOUR_IP initialization done</code> and <code>Total relay threads: 2</code>, with no repeated crash/restart. TLS warnings about a missing certificate are expected and fine &mdash; we're running plain TURN here, which already fixes the vast majority of failed calls. TLS (for the very strictest networks) is an optional later upgrade, not required for this to work.</p>
+
+        <h3><span class="step-badge">2</span>Open the Firewall</h3>
+        <p>coturn needs these ports open, both to the internet at large (TURN clients can be on any network):</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Port</th><th>Protocol</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td>3478</td><td>TCP + UDP</td><td>Main STUN/TURN signaling port</td></tr>
+              <tr><td>49160&ndash;49200</td><td>UDP</td><td>The actual relayed call audio (a small range is enough for a low-traffic app)</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <pre class="code-block"><span class="code-lang">bash</span><code><span class="tok-cmd">ufw</span> allow 3478/tcp
+<span class="tok-cmd">ufw</span> allow 3478/udp
+<span class="tok-cmd">ufw</span> allow 49160:49200/udp
+<span class="tok-cmd">ufw</span> reload</code></pre>
+        <p>If the VPS provider (Hostinger, in our case) also has its own separate cloud firewall panel, open the same ports there too &mdash; the OS firewall alone isn't enough if the provider blocks it a level higher.</p>
+
+        <h3><span class="step-badge">3</span>Test It for Real</h3>
+        <p>Before trusting it inside the app, confirm the TURN server actually works from the open internet using a well-known public WebRTC test page (made by Google/Mozilla &mdash; the standard tool for exactly this):</p>
+        <p class="link-list"><a href="https://webrtc.github.io/samples/src/content/peerconnection/trickle-ice/" target="_blank" rel="noopener">webrtc.github.io/samples/src/content/peerconnection/trickle-ice</a></p>
+
+        <p>First, generate a temporary test login &mdash; run this on the VPS (it reads the secret straight from the config file, so it's never typed anywhere else):</p>
+        <pre class="code-block"><span class="code-lang">bash</span><code><span class="tok-cmd">SECRET</span>=$(grep static-auth-secret /opt/coturn/turnserver.conf | cut -d= -f2)
+<span class="tok-cmd">USERNAME</span>=$(( $(date +%s) + 3600 )):testuser
+<span class="tok-cmd">CRED</span>=$(echo -n "$USERNAME" | openssl dgst -sha1 -hmac "$SECRET" -binary | base64)
+echo "username: $USERNAME"
+echo "credential: $CRED"</code></pre>
+        <p>This prints a username and password valid for one hour only &mdash; safe to use directly in the test page.</p>
+
+        <p>On the Trickle ICE page, under <strong>ICE servers</strong>, there are 3 small boxes:</p>
+        <ol class="doc-list">
+          <li><strong>STUN or TURN URI:</strong> <code>turn:YOUR_VPS_IP:3478</code></li>
+          <li><strong>TURN username:</strong> the <code>username</code> value printed above</li>
+          <li><strong>TURN password:</strong> the <code>credential</code> value printed above</li>
+        </ol>
+        <p>Click <strong>Add Server</strong>, then <strong>Gather candidates</strong>. A results table fills in below. Look at the <strong>Type</strong> column:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Type</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td><code>host</code></td><td>Your own device's local address &mdash; always appears, not meaningful on its own.</td></tr>
+              <tr><td><code>srflx</code></td><td>STUN worked &mdash; your public IP as seen from outside your network.</td></tr>
+              <tr><td><code>relay</code></td><td><strong>TURN worked.</strong> This is the one that matters &mdash; it should show the VPS's IP and a port inside the 49160&ndash;49200 range we opened.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>Seeing a <code>relay</code> row confirms the whole chain end to end: DNS, Docker, the config, and the firewall are all correct.</p>
+
+        <h3>Step 4 &mdash; Backend: Short-Lived Credentials, Not a Fixed Password</h3>
+        <p>The config above uses <code>use-auth-secret</code>, which lets the API mint a brand-new username/password for every call, valid for a limited time, instead of baking one permanent password into the app. This matters: a permanent password inside the app could be pulled out of a decompiled APK and reused by a stranger to relay their own traffic through our server for free.</p>
+        <p><code>GET /api/v1/calls/turn-credentials</code> (requires login) does this:</p>
+        <ul class="doc-list">
+          <li>Generates <code>username = "&lt;expiry-timestamp&gt;:&lt;user-id&gt;"</code></li>
+          <li>Generates <code>credential = base64(HMAC-SHA1(TURN_SECRET, username))</code> &mdash; the same math coturn itself uses to check it</li>
+          <li>Returns both, valid for 1 hour, alongside the server address</li>
+          <li>If <code>TURN_HOST</code>/<code>TURN_SECRET</code> aren't set on a given deployment, it just returns an empty list &mdash; calls fall back to STUN-only instead of breaking</li>
+        </ul>
+        <p>Two environment variables were added to the API's Coolify config, matching the VPS's coturn setup: <code>TURN_HOST</code> (the subdomain) and <code>TURN_SECRET</code> (must exactly match <code>static-auth-secret</code> in <code>turnserver.conf</code>).</p>
+
+        <h3>Step 5 &mdash; Each App Fetches Its Own Credential</h3>
+        <p>All three calling surfaces &mdash; the Rider app, the Driver app, and the Admin dashboard's support-call feature &mdash; follow the same pattern:</p>
+        <ol class="doc-list">
+          <li>As soon as the app/panel is in a call-capable state (logged in, socket connected), it fetches a fresh credential from the API in the background and caches it &mdash; so tapping "Call" never has to wait on this network request.</li>
+          <li>When starting a call, it adds the TURN server (with that cached credential) to the existing list of free Google STUN servers.</li>
+          <li>If the fetch ever fails, it just proceeds with STUN-only, same as before TURN existed &mdash; never blocks a call from starting.</li>
+        </ol>
+
+        <h3>Step 6 &mdash; Deploying the Change</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Component</th><th>What Changed</th><th>How It Ships</th></tr></thead>
+            <tbody>
+              <tr><td>API</td><td>New endpoint + two env vars</td><td>Normal Coolify redeploy</td></tr>
+              <tr><td>Rider app</td><td>JS-only change to the calling code</td><td><strong>OTA update</strong> (<code>eas update --branch production</code>) &mdash; no new Play Store submission, reaches phones automatically next launch</td></tr>
+              <tr><td>Driver app</td><td>Same, JS-only</td><td>Same OTA path</td></tr>
+              <tr><td>Admin dashboard</td><td>Separate web calling code, updated the same way</td><td>Normal website redeploy (Coolify) &mdash; not part of the mobile OTA system at all</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="notice-amber">
+          <strong>OTA Works Even If the Original Build Was Local</strong>
+          OTA updates are matched by a "runtime version" baked into the app at build time &mdash; not by whether the build came from EAS's cloud or a local <code>gradlew</code> build, and not by the Play Store version number shown to users (e.g. "1.1.7"). Those are two separate numbers. As long as the runtime version matches, the OTA reaches the app regardless of how it was originally built.
+        </div>
+
+        <h3>Troubleshooting Log</h3>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Symptom</th><th>Root Cause</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr><td><code>docker logs coturn</code> showed nothing at all, even though the container was running</td><td>coturn buffers its output in memory instead of writing it out immediately when it isn't attached to a real terminal &mdash; a common C-program behavior under Docker.</td><td>Added <code>-t</code> to the <code>docker run</code> command, forcing line-by-line output.</td></tr>
+              <tr><td>coturn reported "27 relay addresses discovered" on startup instead of 1</td><td><code>--network host</code> exposes every Docker network on the VPS, including one private network per Coolify-hosted app.</td><td>Added <code>listening-ip</code> and <code>relay-ip</code> to the config, pinning coturn to just the public IP.</td></tr>
+              <tr><td>Admin &rarr; rider calls failed completely, with no relation to TURN at all</td><td>Admin's socket connection tried <code>ws://</code> (insecure) from a page loaded over <code>https://</code> &mdash; browsers block this outright as "mixed content," so no call signaling could reach the rider at all.</td><td>Changed <code>NEXT_PUBLIC_SOCKET_URL</code> to <code>https://</code> in the admin app's Coolify environment variables, then rebuilt (Next.js bakes this value in at build time, so a restart alone doesn't pick it up).</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section class="doc-section" id="roadmap">
         <div class="section-label">14. Roadmap</div>
         <h2>Post-MVP and Expansion Plan</h2>
@@ -2495,6 +2828,19 @@ git status</code></pre>
     document.addEventListener('scroll', setActiveSidebarLink, { passive: true });
     window.addEventListener('resize', setActiveSidebarLink);
     setActiveSidebarLink();
+
+    // ── Theme toggle ─────────────────────────────────────────────────────
+    const themeToggle = document.querySelector('#theme-toggle');
+    themeToggle.addEventListener('click', () => {
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      if (isDark) {
+        document.documentElement.removeAttribute('data-theme');
+        localStorage.setItem('bahiran-docs-theme', 'light');
+      } else {
+        document.documentElement.setAttribute('data-theme', 'dark');
+        localStorage.setItem('bahiran-docs-theme', 'dark');
+      }
+    });
   </script>
 </body>
 </html>
