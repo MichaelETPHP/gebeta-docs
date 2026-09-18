@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MediCore HR Documentation</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap');
+
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --gray-50: #fafafa;
+      --gray-100: #f4f4f4;
+      --gray-200: #e8e8e8;
+      --gray-300: #d0d0d0;
+      --gray-400: #a0a0a0;
+      --gray-500: #707070;
+      --gray-700: #404040;
+      --gray-900: #141414;
+      --chrome-bg: #000000;
+      --chrome-ink: #ffffff;
+      --chrome-border: #404040;
+      --chrome-surface: #141414;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'IBM Plex Sans', sans-serif;
+      background: var(--white);
+      color: var(--black);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      height: 52px;
+      background: var(--chrome-bg);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      z-index: 200;
+    }
+
+    .topbar-brand {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--chrome-ink);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+
+    .topbar-brand span { color: var(--gray-500); }
+
+    .topbar-meta {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-500);
+      letter-spacing: 1px;
+    }
+
+    .layout {
+      display: flex;
+      margin-top: 52px;
+      min-height: calc(100vh - 52px);
+    }
+
+    .sidebar {
+      width: 268px;
+      flex-shrink: 0;
+      background: var(--gray-50);
+      border-right: 1px solid var(--gray-200);
+      position: sticky;
+      top: 52px;
+      height: calc(100vh - 52px);
+      overflow-y: auto;
+      padding: 28px 0;
+    }
+
+    .sidebar-group-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      color: var(--gray-400);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      padding: 16px 20px 6px;
+      display: block;
+    }
+
+    .sidebar a {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 7px 20px;
+      font-size: 13px;
+      color: var(--gray-500);
+      text-decoration: none;
+      border-left: 2px solid transparent;
+      transition: color 0.15s ease, background 0.15s ease, border-left-color 0.15s ease;
+    }
+
+    .sidebar a svg {
+      width: 15px;
+      height: 15px;
+      flex: 0 0 auto;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      opacity: 0.75;
+    }
+
+    .sidebar a:hover {
+      color: var(--black);
+      background: var(--gray-200);
+      border-left-color: var(--gray-400);
+    }
+
+    .sidebar a.active {
+      color: var(--black);
+      background: var(--white);
+      border-left-color: var(--black);
+      font-weight: 500;
+    }
+
+    .sidebar a.active svg { opacity: 1; }
+
+    .main {
+      flex: 1;
+      max-width: 1000px;
+      padding: 56px 64px 96px;
+    }
+
+    .doc-hero {
+      border-bottom: 1px solid var(--gray-200);
+      padding-bottom: 48px;
+      margin-bottom: 48px;
+    }
+
+    .doc-hero-tag,
+    .section-label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--gray-400);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .doc-hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      letter-spacing: -1px;
+      line-height: 1.1;
+      margin-bottom: 16px;
+    }
+
+    .doc-hero p {
+      font-size: 17px;
+      color: var(--gray-500);
+      max-width: 720px;
+      line-height: 1.7;
+    }
+
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 28px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--black);
+      text-decoration: none;
+      border: 1px solid var(--black);
+      padding: 10px 20px;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: var(--black);
+      color: var(--white);
+    }
+
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px;
+      background: var(--black);
+      border: 1px solid var(--black);
+      margin-top: 32px;
+    }
+
+    .meta-item {
+      background: var(--white);
+      padding: 18px;
+    }
+
+    .meta-label {
+      display: block;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--gray-500);
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .meta-value {
+      display: block;
+      font-size: 15px;
+      font-weight: 600;
+      line-height: 1.4;
+    }
+
+    .doc-section {
+      padding: 36px 0 44px;
+      border-bottom: 1px solid var(--gray-200);
+    }
+
+    .doc-section h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+      margin-bottom: 22px;
+    }
+
+    .doc-section h3 {
+      font-size: 19px;
+      font-weight: 650;
+      margin: 30px 0 12px;
+    }
+
+    .doc-section p {
+      color: var(--gray-700);
+      max-width: 820px;
+      margin-bottom: 16px;
+    }
+
+    .doc-list {
+      color: var(--gray-700);
+      margin: 0 0 18px 20px;
+      max-width: 860px;
+    }
+
+    .doc-list li { margin-bottom: 8px; }
+
+    .doc-section a {
+      color: var(--black);
+      text-decoration: underline;
+      text-decoration-color: var(--gray-300);
+      text-underline-offset: 2px;
+    }
+
+    .doc-section a:hover { text-decoration-color: var(--black); }
+
+    .table-wrap {
+      overflow-x: auto;
+      margin: 22px 0 28px;
+      border: 1px solid var(--black);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 560px;
+      background: var(--white);
+    }
+
+    th, td {
+      border-bottom: 1px solid var(--gray-200);
+      border-right: 1px solid var(--gray-200);
+      padding: 12px 14px;
+      text-align: left;
+      vertical-align: top;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    th {
+      background: var(--chrome-bg);
+      color: var(--chrome-ink);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    tr:last-child td { border-bottom: 0; }
+    th:last-child, td:last-child { border-right: 0; }
+
+    .code-block {
+      position: relative;
+      background: var(--chrome-surface);
+      color: var(--chrome-ink);
+      border: 1px solid var(--chrome-bg);
+      padding: 46px 16px 16px;
+      margin: 18px 0 24px;
+      overflow-x: auto;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      white-space: pre;
+    }
+
+    .code-lang {
+      position: absolute;
+      top: 10px;
+      left: 16px;
+      color: #7a7a7a;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+    }
+
+    .tok-cmd { color: #7fd1ff; }
+    .tok-flag { color: #ffb870; }
+    .tok-comment { color: #7a7a7a; font-style: italic; }
+
+    .step-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 22px;
+      height: 22px;
+      margin-right: 10px;
+      border-radius: 50%;
+      background: var(--black);
+      color: var(--white);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .callout {
+      border-left: 3px solid var(--black);
+      background: var(--gray-50);
+      padding: 18px 20px;
+      margin: 22px 0 28px;
+      color: var(--gray-700);
+      max-width: 820px;
+    }
+
+    .notice-red {
+      border: 1px solid #f0b4b4;
+      border-left: 4px solid #c62828;
+      background: #fff5f5;
+      color: #8a1f1f;
+      padding: 16px 18px;
+      margin: 24px 0 6px;
+      max-width: 820px;
+    }
+
+    .notice-red strong {
+      display: block;
+      color: #7f1616;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .notice-amber {
+      border: 1px solid #f0d999;
+      border-left: 4px solid #b8860b;
+      background: #fffaf0;
+      color: #6b4e00;
+      padding: 16px 18px;
+      margin: 24px 0 6px;
+      max-width: 820px;
+    }
+
+    .notice-amber strong {
+      display: block;
+      color: #5c4200;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    /* ── FOOTER ── */
+    .pro-footer {
+      margin-top: 0;
+      border-top: 1px solid var(--gray-200);
+      background: var(--white);
+      padding: 3rem 2rem;
+      width: 100%;
+    }
+
+    .footer-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 2rem;
+    }
+
+    .footer-left { display: flex; flex-direction: column; gap: 0.5rem; }
+    .footer-logo { font-family: 'IBM Plex Mono', monospace; font-weight: 600; font-size: 1.1rem; color: var(--black); }
+    .footer-logo span { color: var(--gray-500); }
+    .footer-copyright { font-size: 0.85rem; color: var(--gray-500); }
+    .footer-right { display: flex; gap: 2rem; }
+
+    .footer-link {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: var(--gray-500);
+      text-decoration: none;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.9rem;
+      transition: color 0.2s;
+    }
+
+    .footer-link:hover { color: var(--black); }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { padding: 40px 24px 72px; max-width: 100%; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a href="/" class="topbar-brand">gebeta<span>_docs</span></a>
+    <div class="topbar-meta">v1.0.0 &mdash; MediCore HR</div>
+  </div>
+
+  <div class="layout">
+    <nav class="sidebar" aria-label="MediCore HR documentation navigation">
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Overview</span>
+        <a href="#overview" class="active"><svg viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>Project Overview</a>
+        <a href="#tech-stack"><svg viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="1"></rect><path d="M9 2v2M15 2v2M9 20v2M15 20v2M2 9h2M2 15h2M20 9h2M20 15h2"></path></svg>Technology Stack</a>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Setup</span>
+        <a href="#local-setup"><svg viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94z"></path></svg>Local Setup</a>
+        <a href="#env-vars"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>Environment Variables</a>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Git &amp; Collaboration</span>
+        <a href="#repo"><svg viewBox="0 0 24 24"><line x1="6" y1="3" x2="6" y2="15"></line><circle cx="18" cy="6" r="3"></circle><circle cx="6" cy="18" r="3"></circle><path d="M18 9a9 9 0 0 1-9 9"></path></svg>Repository &amp; Branches</a>
+        <a href="#clone-auth"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path><circle cx="12" cy="16" r="1.5"></circle></svg>Cloning &amp; Login</a>
+        <a href="#workflow"><svg viewBox="0 0 24 24"><polyline points="3 12 8 12 10 6 14 18 16 12 21 12"></polyline></svg>Daily Workflow</a>
+        <a href="#identity"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"></circle><path d="M4 21v-1a8 8 0 0 1 16 0v1"></path></svg>Commit Identity</a>
+        <a href="#env-sharing"><svg viewBox="0 0 24 24"><path d="M12 2 4 5v6c0 5 3.5 9 8 11 4.5-2 8-6 8-11V5l-8-3z"></path></svg>Sharing Secrets Safely</a>
+      </div>
+      <div class="sidebar-group">
+        <span class="sidebar-group-label">Reference</span>
+        <a href="#team"><svg viewBox="0 0 24 24"><circle cx="9" cy="7" r="4"></circle><path d="M2 21v-2a4 4 0 0 1 4-4h6a4 4 0 0 1 4 4v2"></path><circle cx="18" cy="8" r="3"></circle><path d="M22 21v-1.5a3.5 3.5 0 0 0-3-3.46"></path></svg>Team &amp; Access Model</a>
+        <a href="#troubleshooting"><svg viewBox="0 0 24 24"><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Troubleshooting</a>
+      </div>
+    </nav>
+
+    <main class="main">
+      <header class="doc-hero" id="top">
+        <a href="/" class="back-btn">&larr; Back to Portal</a>
+        <div class="doc-hero-tag">Developer Onboarding &amp; Git Guide</div>
+        <h1>MediCore HR Documentation</h1>
+        <p>Full-stack hospital HR onboarding platform. This page is the setup and Git reference for the 3-person dev team &mdash; how the repo is organized, how to clone and authenticate with the shared account, and the day-to-day workflow for pushing changes.</p>
+
+        <div class="meta-grid">
+          <div class="meta-item">
+            <span class="meta-label">Project</span>
+            <strong class="meta-value">MediCore HR &mdash; Onboarding Platform</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Repository</span>
+            <strong class="meta-value">deliverygebeta-oss/gebeta-medi-core-hr-project</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Team Size</span>
+            <strong class="meta-value">3 developers, shared GitHub account</strong>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Default Branch</span>
+            <strong class="meta-value">dev</strong>
+          </div>
+        </div>
+      </header>
+
+      <section class="doc-section" id="overview">
+        <div class="section-label">1. Project Overview</div>
+        <h2>What is MediCore HR?</h2>
+        <p>A full-stack HR onboarding platform for hospital staff: officer login &rarr; side-menu dashboard &rarr; officer-scoped employee register &rarr; onboarding wizard in a modal &rarr; per-document verification that drives each employee's onboarding status.</p>
+        <ul class="doc-list">
+          <li><strong>Roles:</strong> <code>hr_officer</code> (only sees employees they registered), <code>admin</code> (sees everyone, can reassign ownership), <code>viewer</code> (read-only, no PII reveal/export).</li>
+          <li><strong>Security:</strong> AES-256-GCM field-level encryption for national ID / bank account / pension / TIN, argon2id password hashing, revocable server-side sessions, full audit log.</li>
+          <li><strong>Localization:</strong> English/Amharic UI, Ethiopian-calendar date picker for onboarding dates.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="tech-stack">
+        <div class="section-label">2. Technology Stack</div>
+        <h2>Stack Summary</h2>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Layer</th><th>Stack</th></tr></thead>
+            <tbody>
+              <tr><td>Monorepo</td><td>Bun workspaces (<code>apps/web</code>, <code>apps/api</code>), single <code>bun.lock</code>.</td></tr>
+              <tr><td>Frontend</td><td>SvelteKit 2 + Svelte 5, Vite 7, Tailwind CSS 4, TypeScript. <code>apps/web</code>, port 5173.</td></tr>
+              <tr><td>API</td><td>Bun runtime running Hono. Drizzle ORM + drizzle-kit for migrations, Zod for validation. <code>apps/api</code>, port 3000.</td></tr>
+              <tr><td>Database</td><td>PostgreSQL 16, dedicated schema <code>medicore_hr_db</code>.</td></tr>
+              <tr><td>Auth</td><td>JWT access/refresh tokens (Bearer), argon2id password hashing, revocable sessions table.</td></tr>
+              <tr><td>Infra</td><td>Docker Compose (db/api/web), designed for Coolify (Traefik-fronted) but runs behind any reverse proxy.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="local-setup">
+        <div class="section-label">3. Local Setup</div>
+        <h2>Getting the App Running</h2>
+        <ol class="doc-list">
+          <li><span class="step-badge">1</span>Install <a href="https://bun.sh" target="_blank">Bun</a> and Git for Windows.</li>
+          <li><span class="step-badge">2</span>Clone the repo (see <a href="#clone-auth">Cloning &amp; Login</a> below).</li>
+          <li><span class="step-badge">3</span>Run <code>bun install</code> from the repo root.</li>
+          <li><span class="step-badge">4</span>Get <code>apps/api/.env</code> from the team lead through a secure channel (see <a href="#env-sharing">Sharing Secrets Safely</a>) and place it at <code>apps/api/.env</code>.</li>
+          <li><span class="step-badge">5</span>Run <code>start-medicore.bat</code> (Windows) &mdash; opens the API and web app in separate windows.</li>
+        </ol>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-comment"># or run each manually, from the repo root:</span>
+<span class="tok-cmd">bun</span> run dev:api    <span class="tok-comment"># Hono API  -&gt; http://localhost:3000</span>
+<span class="tok-cmd">bun</span> run dev:web    <span class="tok-comment"># SvelteKit -&gt; http://localhost:5173</span></code></pre>
+      </section>
+
+      <section class="doc-section" id="env-vars">
+        <div class="section-label">3.1 Environment Variables</div>
+        <h2>apps/api/.env</h2>
+        <p>Never committed &mdash; gitignored on purpose. <code>apps/api/.env.example</code> in the repo documents every key with no real values; get the real file from the team lead (see <a href="#env-sharing">Sharing Secrets Safely</a>).</p>
+        <ul class="doc-list">
+          <li><code>DATABASE_URL</code> &mdash; shared dev Postgres connection string.</li>
+          <li><code>JWT_SECRET</code>, <code>JWT_ACCESS_EXPIRES_IN</code>, <code>JWT_REFRESH_EXPIRES_IN</code> &mdash; auth token signing/lifetimes.</li>
+          <li><code>ENCRYPTION_KEY</code> &mdash; AES-256-GCM key for PII fields at rest. Must match whatever key already encrypted data in the shared DB &mdash; never rotate casually.</li>
+          <li><code>CORS_ORIGIN</code>, <code>PORT</code>, <code>FILE_BUCKET_DIR</code>, <code>AUTO_MIGRATE</code> &mdash; server/runtime config.</li>
+        </ul>
+        <div class="notice-amber">
+          <strong>Must Match Across the Team</strong>
+          Since everyone points at the same shared dev database, <code>JWT_SECRET</code> and <code>ENCRYPTION_KEY</code> must be identical in everyone's <code>.env</code>, or tokens/decryption break across machines.
+        </div>
+      </section>
+
+      <section class="doc-section" id="repo">
+        <div class="section-label">4. Repository &amp; Branches</div>
+        <h2>Where the Code Lives</h2>
+        <p>The repo is hosted under the shared org account, not any individual developer's personal GitHub:</p>
+        <pre class="code-block"><span class="code-lang">url</span><code>https://github.com/deliverygebeta-oss/gebeta-medi-core-hr-project</code></pre>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Branch</th><th>Purpose</th></tr></thead>
+            <tbody>
+              <tr><td><code>dev</code> <em>(default)</em></td><td>Active development. Day-to-day commits and pushes happen here.</td></tr>
+              <tr><td><code>prod</code></td><td>Mirrors what's actually deployed. Only fast-forwarded from <code>dev</code> once changes are verified working.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p>There is intentionally no <code>main</code> branch &mdash; <code>dev</code> is the default GitHub lands on when you open the repo.</p>
+      </section>
+
+      <section class="doc-section" id="clone-auth">
+        <div class="section-label">4.1 Cloning &amp; Login</div>
+        <h2>First-Time Setup Per Machine</h2>
+        <p>All three developers push through <strong>one shared GitHub account</strong> (<code>deliverygebeta-oss</code>) rather than individual accounts. Authentication uses a Personal Access Token (PAT), not the account's real password.</p>
+
+        <h3>Step 1 &mdash; Clone</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">git</span> clone https://github.com/deliverygebeta-oss/gebeta-medi-core-hr-project.git
+<span class="tok-cmd">cd</span> gebeta-medi-core-hr-project</code></pre>
+
+        <h3>Step 2 &mdash; Force token-based login (skip the browser OAuth popup)</h3>
+        <p>By default, Git Credential Manager tries to open a browser and log in interactively &mdash; that needs the real account password, which nobody but the team lead should need. This forces a plain username/token prompt instead:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">git</span> config credential.https://github.com.provider generic</code></pre>
+
+        <h3>Step 3 &mdash; Trigger the credential prompt</h3>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">git</span> fetch</code></pre>
+        <p>When prompted:</p>
+        <ul class="doc-list">
+          <li><strong>Username:</strong> <code>deliverygebeta-oss</code></li>
+          <li><strong>Password:</strong> the current shared token (ask the team lead &mdash; see <a href="#env-sharing">Sharing Secrets Safely</a>)</li>
+        </ul>
+        <p>Git Credential Manager caches this afterward, so it's a one-time step per machine.</p>
+      </section>
+
+      <section class="doc-section" id="workflow">
+        <div class="section-label">4.2 Daily Workflow</div>
+        <h2>Pushing &amp; Pulling Changes</h2>
+        <ol class="doc-list">
+          <li><span class="step-badge">1</span>Always <code>git pull origin dev</code> before starting work, to avoid conflicts with a teammate's changes.</li>
+          <li><span class="step-badge">2</span>Make your changes, then stage and commit normally.</li>
+          <li><span class="step-badge">3</span>Push straight to <code>dev</code> &mdash; that's the working branch for all day-to-day changes.</li>
+          <li><span class="step-badge">4</span>Once a set of changes has been tested and is ready to go live, fast-forward <code>prod</code> to match <code>dev</code>.</li>
+        </ol>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">git</span> pull origin dev
+<span class="tok-comment"># ...make changes...</span>
+<span class="tok-cmd">git</span> add .
+<span class="tok-cmd">git</span> commit -m <span class="tok-flag">"describe the change"</span>
+<span class="tok-cmd">git</span> push origin dev</code></pre>
+        <div class="callout">
+          Since everyone pushes through the same account, there's no GitHub-side record of <em>which developer</em> made a given push. If that matters for a specific change, mention your name in the commit message body.
+        </div>
+      </section>
+
+      <section class="doc-section" id="identity">
+        <div class="section-label">4.3 Commit Identity</div>
+        <h2>Keep Commits Looking Uniform</h2>
+        <p>Right after cloning, set the local (repo-only) git identity so commits show as the team, not your personal name &mdash; this does <strong>not</strong> touch your global git config used by other projects:</p>
+        <pre class="code-block"><span class="code-lang">cmd</span><code><span class="tok-cmd">git</span> config user.name <span class="tok-flag">"MediCore Team"</span>
+<span class="tok-cmd">git</span> config user.email <span class="tok-flag">"team@medicore.local"</span></code></pre>
+        <div class="notice-red">
+          <strong>Required, Not Optional</strong>
+          Skipping this step means your commits will show your personal GitHub-linked name/email on a shared team repo. Run it once per machine, right after cloning.
+        </div>
+      </section>
+
+      <section class="doc-section" id="env-sharing">
+        <div class="section-label">4.4 Sharing Secrets Safely</div>
+        <h2>The Shared Token and .env File</h2>
+        <p>Two things get shared outside of git: the GitHub access token, and <code>apps/api/.env</code>. Both contain real secrets.</p>
+        <ul class="doc-list">
+          <li>Use a password manager's shared vault (1Password, Bitwarden), or an encrypted transfer &mdash; never Slack, email, or any chat, including AI assistants.</li>
+          <li>If a token or key is ever pasted into plaintext chat, treat it as compromised: revoke and regenerate it immediately rather than continuing to use it.</li>
+          <li>If someone leaves the team, rotate the shared token &mdash; there's no way to revoke access for just one person under a shared-account model.</li>
+        </ul>
+      </section>
+
+      <section class="doc-section" id="team">
+        <div class="section-label">5. Team &amp; Access Model</div>
+        <h2>Why a Shared Account?</h2>
+        <p>This repo uses one shared GitHub login for all 3 developers instead of individual collaborator accounts. That's a deliberate tradeoff:</p>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Gained</th><th>Given up</th></tr></thead>
+            <tbody>
+              <tr><td>Simple setup &mdash; one token, no per-person invites</td><td>No per-developer audit trail on GitHub (pushes all show as the shared account)</td></tr>
+              <tr><td>No org-seat management overhead</td><td>One leaked token affects everyone; no selective revocation for a single person</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="doc-section" id="troubleshooting">
+        <div class="section-label">6. Troubleshooting</div>
+        <h2>Common Issues</h2>
+        <h3>Push rejected with a 403 / "Permission denied"</h3>
+        <p>The cached credential on your machine doesn't have access, or the shared token was rotated. Re-run <code>git config credential.https://github.com.provider generic</code> and re-trigger the prompt with the current token.</p>
+        <h3>Cannot find module '.../vite/bin/vite.js'</h3>
+        <p>Dependencies are missing or the install is corrupted. From the repo root: delete <code>node_modules</code> in the root, <code>apps/web</code>, and <code>apps/api</code>, then run <code>bun install</code> again.</p>
+        <h3>My commits show my personal name, not "MediCore Team"</h3>
+        <p>The repo-local git identity wasn't set on this machine (or was reset by another tool). Re-run the two <code>git config</code> commands in <a href="#identity">Commit Identity</a> above.</p>
+      </section>
+
+    </main>
+  </div>
+
+  <footer class="pro-footer">
+    <div class="footer-container">
+      <div class="footer-left">
+        <div class="footer-logo">gebeta<span>_docs</span></div>
+        <p class="footer-copyright">&copy; 2026 Gebeta Technology PLC. All rights reserved.</p>
+      </div>
+      <div class="footer-right">
+        <a href="https://www.gebetatech.com" target="_blank" class="footer-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+          gebetatech.com
+        </a>
+        <a href="tel:091944444499" class="footer-link">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+          </svg>
+          091944444499
+        </a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Highlight the active sidebar link as sections scroll into view.
+    (function () {
+      const links = Array.from(document.querySelectorAll('.sidebar a'));
+      const sections = Array.from(document.querySelectorAll('.doc-section'));
+      if (!links.length || !sections.length) return;
+      const byId = new Map(links.map(a => [a.getAttribute('href').slice(1), a]));
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            links.forEach(a => a.classList.remove('active'));
+            const link = byId.get(entry.target.id);
+            if (link) link.classList.add('active');
+          }
+        });
+      }, { rootMargin: '-20% 0px -70% 0px' });
+      sections.forEach(s => observer.observe(s));
+    })();
+  </script>
+</body>
+</html>

@@ -39,6 +39,10 @@ app.get("/taxiapp", (req, res) => {
   res.sendFile(path.join(__dirname, "taxiapp.html"));
 });
 
+app.get("/medicore-hr", (req, res) => {
+  res.sendFile(path.join(__dirname, "medicore-hr.html"));
+});
+
 app.use('/src/assets', express.static(path.join(__dirname, 'src', 'assets')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'src', 'assets')));
