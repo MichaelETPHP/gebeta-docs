@@ -43,6 +43,10 @@ app.get("/medicore-hr", (req, res) => {
   res.sendFile(path.join(__dirname, "medicore-hr.html"));
 });
 
+app.get("/telebirr-integration", (req, res) => {
+  res.sendFile(path.join(__dirname, "telebirr-integration.html"));
+});
+
 app.use('/src/assets', express.static(path.join(__dirname, 'src', 'assets')));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(express.static(path.join(__dirname, 'src', 'assets')));
